@@ -128,10 +128,24 @@
       font-weight: 500;
       color: var(--negro);
       letter-spacing: 1px;
-      margin-bottom: 18px;
-      padding-bottom: 12px;
+      margin-bottom: 0;
+      padding: 12px 0;
       border-bottom: 1px solid rgba(0,0,0,0.06);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
     }
+    .dash-card h2::after {
+      content: '▾';
+      font-size: 0.8rem;
+      color: var(--gris-light);
+      transition: transform 0.3s;
+    }
+    .dash-card h2.collapsed::after { transform: rotate(-90deg); }
+    .dash-card-body { padding-top: 18px; }
+    .dash-card-body.hidden { display: none; }
 
     /* TABLES */
     .dash-table { width: 100%; border-collapse: collapse; }
@@ -406,6 +420,108 @@
       letter-spacing: 0.5px;
     }
     .estado-select option { background: #fff; color: var(--negro); }
+
+    /* Soporte Cards (vertical) */
+    .soporte-card {
+      background: #fafaf8;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    .soporte-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .soporte-card-header strong { font-size: 0.9rem; }
+    .soporte-card-meta {
+      font-size: 0.75rem;
+      color: var(--gris-light);
+      margin-bottom: 8px;
+    }
+    .soporte-card-msg {
+      font-size: 0.85rem;
+      color: var(--negro-light);
+      line-height: 1.6;
+      margin-bottom: 12px;
+      padding: 10px;
+      background: white;
+      border-radius: 6px;
+    }
+    .soporte-card-response {
+      background: rgba(39,174,96,0.08);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 0.82rem;
+      color: #166534;
+    }
+    .soporte-card-response strong { display: block; margin-bottom: 4px; font-size: 0.72rem; }
+    .soporte-card-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-responder {
+      padding: 8px 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 6px;
+      background: var(--rosa);
+      color: white;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background 0.2s;
+    }
+    .btn-responder:hover { background: var(--rosa-dark); }
+    .btn-contactar {
+      padding: 8px 20px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--negro-light);
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.2s;
+    }
+    .btn-contactar:hover { background: rgba(0,0,0,0.04); }
+
+    /* Pedido Cards (vertical) */
+    .pedido-card {
+      background: #fafaf8;
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+    .pedido-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .pedido-card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .pedido-card-detail {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      font-size: 0.82rem;
+      color: var(--negro-light);
+      line-height: 1.8;
+    }
+    .pedido-card-detail.show { display: block; }
   </style>
 </head>
 <body>
@@ -803,32 +919,45 @@
           container.innerHTML = '<div class="dash-empty">Sin pedidos en la base de datos</div>';
           return;
         }
-        container.innerHTML = `<table class="dash-table">
-          <thead><tr><th>Pedido</th><th>Cliente</th><th>Email</th><th>Productos</th><th>Desc.</th><th>Total</th><th>Método</th><th>Estado</th><th>Acciones</th></tr></thead>
-          <tbody>${pedidos.map(p => {
-            const cliente = p.abril_clientes || {};
-            return `<tr id="row-${p.id}">
-              <td><strong style="cursor:pointer;color:var(--azul);text-decoration:underline;" onclick="showPedidoDetail('${p.id}')">${p.pedido_id}</strong><br><span style="font-size:0.68rem;color:var(--gris-light)">${new Date(p.created_at).toLocaleDateString('es-HN')}</span></td>
-              <td>${cliente.nombre || '—'}</td>
-              <td><span class="email-link" onclick="openEmailModal('${cliente.email || ''}')">${cliente.email || '—'}</span></td>
-              <td style="max-width:150px;">${(p.productos || []).map(pr => pr.nombre).join(', ')}</td>
-              <td>${p.descuento > 0 ? '<span style="color:var(--verde)">-L.' + Number(p.descuento).toLocaleString('es-HN') + '</span>' : '—'}</td>
-              <td><strong>L. ${Number(p.total).toLocaleString('es-HN')}</strong></td>
-              <td><span class="badge ${p.es_credito ? 'badge-rosa' : 'badge-blue'}">${p.es_credito ? 'Crédito ONE' : 'Completo'}</span></td>
-              <td>
-                <select class="estado-select" style="background:${ESTADO_COLORS[p.estado] || '#999'}" onchange="cambiarEstado('${p.id}', this.value, this)">
-                  ${ESTADO_OPTIONS.map(e => `<option value="${e}" ${p.estado === e ? 'selected' : ''}>${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
-                </select>
-              </td>
-              <td>
-                <button class="dash-btn" style="font-size:0.6rem;padding:5px 10px;" onclick="openEmailModal('${cliente.email || ''}')">Contactar</button>
-              </td>
-            </tr>`;
-          }).join('')}</tbody>
-        </table>`;
+        container.innerHTML = pedidos.map(p => {
+          const c = p.abril_clientes || {};
+          const dir = p.direccion || {};
+          return `<div class="pedido-card" onclick="togglePedidoDetail(this)">
+            <div class="pedido-card-row">
+              <div>
+                <strong>${p.pedido_id}</strong>
+                <span style="font-size:0.72rem;color:var(--gris-light);margin-left:8px;">${new Date(p.created_at).toLocaleDateString('es-HN')}</span>
+              </div>
+              <select class="estado-select" style="background:${ESTADO_COLORS[p.estado] || '#999'}" onclick="event.stopPropagation()" onchange="cambiarEstado('${p.id}', this.value, this)">
+                ${ESTADO_OPTIONS.map(e => `<option value="${e}" ${p.estado === e ? 'selected' : ''}>${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
+              </select>
+            </div>
+            <div class="pedido-card-row">
+              <span style="font-size:0.85rem;">${c.nombre || '—'} — <span class="email-link" onclick="event.stopPropagation();openEmailModal('${c.email || ''}')">${c.email || '—'}</span></span>
+              <strong style="font-size:1rem;">L. ${Number(p.total).toLocaleString('es-HN')}</strong>
+            </div>
+            <div class="pedido-card-row" style="margin-bottom:0;">
+              <span style="font-size:0.78rem;color:var(--gris);">${(p.productos || []).map(pr => pr.nombre).join(', ')}</span>
+              <span class="badge ${p.es_credito ? 'badge-rosa' : 'badge-blue'}">${p.es_credito ? 'Crédito ONE' : 'Completo'}</span>
+            </div>
+            <div class="pedido-card-detail">
+              ${p.descuento > 0 ? `<strong>Descuento:</strong> -L. ${Number(p.descuento).toLocaleString('es-HN')} (10%)<br>` : ''}
+              ${p.es_credito ? `<strong>Pago inicial:</strong> L. ${Number(p.pago_inicial).toLocaleString('es-HN')}<br><strong>Pendiente:</strong> L. ${Number(p.pago_pendiente).toLocaleString('es-HN')}<br>` : ''}
+              ${dir.departamento ? `<strong>Dirección:</strong> ${dir.departamento}${dir.ciudad ? ', ' + dir.ciudad : ''}${dir.colonia ? ', ' + dir.colonia : ''}${dir.direccion ? ' — ' + dir.direccion : ''}<br>` : ''}
+              <div style="margin-top:10px;">
+                <button class="btn-contactar" onclick="event.stopPropagation();openEmailModal('${c.email || ''}')">✉ Contactar</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
       } catch(e) {
-        container.innerHTML = '<div class="dash-empty" style="color:var(--rojo)">Error al cargar pedidos de Supabase</div>';
+        container.innerHTML = '<div class="dash-empty" style="color:var(--rojo)">Error al cargar pedidos</div>';
       }
+    }
+
+    function togglePedidoDetail(card) {
+      const detail = card.querySelector('.pedido-card-detail');
+      if (detail) detail.classList.toggle('show');
     }
 
     async function cambiarEstado(pedidoId, nuevoEstado, selectEl) {
@@ -836,39 +965,8 @@
       try {
         await actualizarEstadoPedido(pedidoId, nuevoEstado);
         selectEl.style.background = ESTADO_COLORS[nuevoEstado] || '#999';
-      } catch(e) {
-        alert('Error al cambiar estado');
-      }
+      } catch(e) { alert('Error al cambiar estado'); }
       selectEl.disabled = false;
-    }
-
-    function showPedidoDetail(pedidoId) {
-      // Find the row and toggle detail
-      const row = document.getElementById('row-' + pedidoId);
-      const existing = document.getElementById('detail-' + pedidoId);
-      if (existing) { existing.remove(); return; }
-
-      // Get pedido data from the table cells
-      const cells = row.querySelectorAll('td');
-      const detailRow = document.createElement('tr');
-      detailRow.id = 'detail-' + pedidoId;
-      detailRow.innerHTML = `<td colspan="9" style="background:var(--marfil);padding:16px;border-radius:8px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:0.82rem;">
-          <div>
-            <strong>Pedido:</strong> ${cells[0].querySelector('strong').textContent}<br>
-            <strong>Fecha:</strong> ${cells[0].querySelector('span').textContent}<br>
-            <strong>Cliente:</strong> ${cells[1].textContent}<br>
-            <strong>Email:</strong> ${cells[2].textContent}
-          </div>
-          <div>
-            <strong>Productos:</strong> ${cells[3].textContent}<br>
-            <strong>Descuento:</strong> ${cells[4].textContent}<br>
-            <strong>Total:</strong> ${cells[5].textContent}<br>
-            <strong>Método:</strong> ${cells[6].textContent}
-          </div>
-        </div>
-      </td>`;
-      row.after(detailRow);
     }
 
     // ---- SOPORTE ----
@@ -880,26 +978,29 @@
           container.innerHTML = '<div class="dash-empty">Sin mensajes de soporte</div>';
           return;
         }
-        container.innerHTML = `<table class="dash-table">
-          <thead><tr><th>Fecha</th><th>Nombre</th><th>Email</th><th>Asunto</th><th>Mensaje</th><th>Estado</th><th>Acciones</th></tr></thead>
-          <tbody>${tickets.map(t => `
-            <tr>
-              <td style="font-size:0.75rem;">${new Date(t.created_at).toLocaleDateString('es-HN')}</td>
-              <td>${t.nombre}</td>
-              <td><span class="email-link" onclick="openEmailModal('${t.email}')">${t.email}</span></td>
-              <td><strong>${t.asunto}</strong></td>
-              <td style="max-width:200px;font-size:0.8rem;color:var(--gris);">${t.mensaje.substring(0, 100)}${t.mensaje.length > 100 ? '...' : ''}</td>
-              <td><span class="badge ${t.estado === 'respondido' ? 'badge-green' : 'badge-yellow'}">${t.estado}</span></td>
-              <td>
-                ${t.estado !== 'respondido'
-                  ? `<button class="dash-btn" style="font-size:0.6rem;padding:5px 10px;" onclick="responderTicket('${t.id}','${t.email}','${t.nombre}')">Responder</button>`
-                  : `<span style="font-size:0.72rem;color:var(--verde);">Respondido</span>`
-                }
-              </td>
-            </tr>
-            ${t.respuesta ? `<tr><td colspan="7" style="background:#f0fdf4;padding:10px 16px;font-size:0.8rem;color:#166534;"><strong>Respuesta:</strong> ${t.respuesta}</td></tr>` : ''}
-          `).join('')}</tbody>
-        </table>`;
+        container.innerHTML = tickets.map(t => `
+          <div class="soporte-card">
+            <div class="soporte-card-header">
+              <div>
+                <strong>${t.asunto}</strong>
+                <span class="badge ${t.estado === 'respondido' ? 'badge-green' : 'badge-yellow'}" style="margin-left:8px;">${t.estado}</span>
+              </div>
+              <span style="font-size:0.72rem;color:var(--gris-light);">${new Date(t.created_at).toLocaleDateString('es-HN')}</span>
+            </div>
+            <div class="soporte-card-meta">
+              <strong>${t.nombre}</strong> — <span class="email-link" onclick="openEmailModal('${t.email}')">${t.email}</span>
+            </div>
+            <div class="soporte-card-msg">${t.mensaje}</div>
+            ${t.respuesta ? `<div class="soporte-card-response"><strong>Tu respuesta:</strong><p>${t.respuesta}</p></div>` : ''}
+            <div class="soporte-card-actions">
+              ${t.estado !== 'respondido'
+                ? `<button class="btn-responder" onclick="responderTicket('${t.id}','${t.email}','${t.nombre}')">Responder</button>`
+                : ''
+              }
+              <button class="btn-contactar" onclick="openEmailModal('${t.email}')">✉ Contactar por correo</button>
+            </div>
+          </div>
+        `).join('');
       } catch(e) {
         container.innerHTML = '<div class="dash-empty" style="color:var(--rojo);">Error al cargar soporte</div>';
       }
@@ -913,6 +1014,15 @@
         loadSoporte();
       }).catch(() => alert('Error al responder.'));
     }
+
+    // Collapsible sections
+    document.querySelectorAll('.dash-card h2').forEach(h2 => {
+      h2.addEventListener('click', () => {
+        h2.classList.toggle('collapsed');
+        const body = h2.nextElementSibling;
+        if (body) body.classList.toggle('hidden');
+      });
+    });
 
     // Init
     refreshDash();

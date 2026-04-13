@@ -143,6 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
       emailTimeout = setTimeout(async () => {
         const email = clienteEmail.value.trim();
         if (!email || !email.includes('@')) return;
+
+        // Show address fields after email is entered
+        const addrFields = document.getElementById('addressFields');
+        if (addrFields) addrFields.style.display = 'block';
+
         try {
           const result = await checkClienteNuevo(email);
           const badge = document.getElementById('discountBadge');
@@ -172,8 +177,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const nombre = document.getElementById('clienteNombre')?.value.trim();
       const email = document.getElementById('clienteEmail')?.value.trim();
+      const depto = document.getElementById('clienteDepto')?.value;
+      const ciudad = document.getElementById('clienteCiudad')?.value.trim();
+      const colonia = document.getElementById('clienteColonia')?.value.trim();
+      const direccionExacta = document.getElementById('clienteDireccion')?.value.trim();
+
       if (!nombre || !email || !email.includes('@')) {
         alert('Por favor ingresa tu nombre y correo electrónico.');
+        return;
+      }
+      if (!depto) {
+        alert('Por favor selecciona tu departamento.');
         return;
       }
 
@@ -212,7 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
           es_credito: esCredito,
           pago_inicial: esCredito ? Math.ceil(total / 2) : total,
           pago_pendiente: esCredito ? total - Math.ceil(total / 2) : 0,
-          estado: 'pendiente'
+          estado: 'pendiente',
+          direccion: { departamento: depto, ciudad: ciudad || '', colonia: colonia || '', direccion: direccionExacta || '' }
         });
 
         // Mark client as no longer new
@@ -299,15 +314,20 @@ function renderCartItems() {
     const item = document.createElement('div');
     item.className = 'cart-item';
     item.innerHTML = `
-      <div class="cart-item-color" style="background: ${product.imagen ? 'transparent' : product.gradient}; cursor:pointer;" onclick="if(typeof openProductModal==='function'){closeCart();openProductModal(${product.id});}">
-        ${product.imagen ? `<img src="${product.imagen}" alt="${product.nombre}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">` : ''}
+      <div class="cart-item-img" onclick="if(typeof openProductModal==='function'){closeCart();openProductModal(${product.id});}">
+        ${product.imagen
+          ? `<img src="${product.imagen}" alt="${product.nombre}">`
+          : `<div class="cart-item-color-dot" style="background: ${product.gradient};"></div>`
+        }
       </div>
-      <div class="cart-item-info" style="cursor:pointer;" onclick="if(typeof openProductModal==='function'){closeCart();openProductModal(${product.id});}">
+      <div class="cart-item-info" onclick="if(typeof openProductModal==='function'){closeCart();openProductModal(${product.id});}">
         <div class="cart-item-name">${product.nombre}</div>
         <div class="cart-item-cat">${product.categoria}</div>
-        <div class="cart-item-price">L. ${product.precio.toLocaleString('es-HN')} ${qty > 1 ? '× ' + qty : ''}</div>
+        <div class="cart-item-price">L. ${product.precio.toLocaleString('es-HN')} ${qty > 1 ? '<span class="cart-item-qty">× ' + qty + '</span>' : ''}</div>
       </div>
-      <button class="cart-item-remove" onclick="removeFromCart(${product.id})" aria-label="Eliminar">×</button>
+      <button class="cart-item-remove" onclick="removeFromCart(${product.id})" aria-label="Eliminar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     `;
     cartItemsEl.appendChild(item);
   });
@@ -357,6 +377,15 @@ function updateCartTotals() {
   }
 }
 
+// ---- Address field progressive reveal ----
+function showNextField(fieldId) {
+  const el = document.getElementById(fieldId);
+  if (el && el.style.display === 'none') {
+    el.style.display = '';
+    el.focus();
+  }
+}
+
 // ---- Order History ----
 const ESTADO_COLORS = {
   pendiente: '#f39c12',
@@ -366,7 +395,7 @@ const ESTADO_COLORS = {
   cancelado: '#e74c3c'
 };
 
-async function showOrderHistory() {
+async function showCommunications() {
   const historyEl = document.getElementById('cartHistory');
   if (!historyEl) return;
 
@@ -377,37 +406,60 @@ async function showOrderHistory() {
 
   const email = document.getElementById('clienteEmail')?.value.trim();
   if (!email || !email.includes('@')) {
-    alert('Ingresa tu correo electrónico para ver tus pedidos.');
+    alert('Ingresa tu correo electrónico para ver tus comunicaciones.');
     document.getElementById('clienteEmail')?.focus();
     return;
   }
 
   historyEl.style.display = 'block';
-  historyEl.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.8rem;padding:16px;">Cargando pedidos...</p>';
+  historyEl.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.8rem;padding:16px;">Cargando...</p>';
 
   try {
-    const pedidos = await fetchPedidosPorEmail(email);
-    if (pedidos.length === 0) {
-      historyEl.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.8rem;padding:16px;">No tienes pedidos aún.</p>';
-      return;
-    }
+    const [pedidos, mensajes] = await Promise.all([
+      fetchPedidosPorEmail(email),
+      typeof fetchMisComunicaciones === 'function' ? fetchMisComunicaciones(email) : []
+    ]);
 
-    historyEl.innerHTML = '<p class="cart-form-label" style="margin-bottom:12px;">Historial de Pedidos</p>' +
-      pedidos.map(p => `
+    let html = '';
+
+    if (pedidos.length > 0) {
+      html += '<p class="cart-form-label" style="margin-bottom:8px;">Mis Pedidos</p>';
+      html += pedidos.map(p => `
         <div class="history-order">
           <div class="history-order-header">
             <strong>${p.pedido_id}</strong>
             <span class="history-status" style="background:${ESTADO_COLORS[p.estado] || '#999'}">${p.estado.toUpperCase()}</span>
           </div>
           <div class="history-order-details">
-            <span>Total: L. ${Number(p.total).toLocaleString('es-HN')}</span>
-            ${p.descuento > 0 ? `<span style="color:#16a34a;">(-10% desc.)</span>` : ''}
+            <span>L. ${Number(p.total).toLocaleString('es-HN')}</span>
+            ${p.descuento > 0 ? `<span style="color:#16a34a;">(-10%)</span>` : ''}
           </div>
           <div class="history-order-date">${new Date(p.created_at).toLocaleDateString('es-HN')}</div>
         </div>
       `).join('');
+    }
+
+    if (mensajes.length > 0) {
+      html += '<p class="cart-form-label" style="margin:12px 0 8px;">Mis Mensajes</p>';
+      html += mensajes.map(m => `
+        <div class="history-order">
+          <div class="history-order-header">
+            <strong>${m.asunto}</strong>
+            <span class="history-status" style="background:${m.estado === 'respondido' ? '#27ae60' : '#f39c12'}">${m.estado === 'respondido' ? 'RESPONDIDO' : 'PENDIENTE'}</span>
+          </div>
+          ${m.respuesta ? `<div style="background:#f0fdf4;padding:8px;border-radius:6px;margin-top:6px;font-size:0.78rem;color:#166534;"><strong>Respuesta:</strong> ${m.respuesta}</div>` : ''}
+          <div class="history-order-date">${new Date(m.created_at).toLocaleDateString('es-HN')}</div>
+        </div>
+      `).join('');
+    }
+
+    if (!html) {
+      html = '<p style="text-align:center;color:var(--gris);font-size:0.8rem;padding:16px;">No hay comunicaciones con este correo.</p>';
+    }
+
+    historyEl.innerHTML = html;
   } catch (e) {
-    historyEl.innerHTML = '<p style="text-align:center;color:var(--rojo,#e74c3c);font-size:0.8rem;padding:16px;">Error al cargar pedidos.</p>';
+    historyEl.innerHTML = '<p style="text-align:center;color:#e74c3c;font-size:0.8rem;padding:16px;">Error al cargar.</p>';
   }
 }
 

@@ -296,6 +296,16 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
           <span>10% de descuento en tu primer pedido</span>
         </div>
+        <div class="cart-address-fields" id="addressFields" style="display:none;">
+          <p class="cart-form-label" style="margin-top:12px;">Dirección de entrega</p>
+          <select id="clienteDepto" class="cart-input" onchange="showNextField('clienteCiudad')">
+            <option value="" disabled selected>Departamento</option>
+            <option>Francisco Morazán</option><option>Cortés</option><option>Atlántida</option><option>Comayagua</option><option>Choluteca</option><option>Copán</option><option>El Paraíso</option><option>Gracias a Dios</option><option>Intibucá</option><option>Islas de la Bahía</option><option>La Paz</option><option>Lempira</option><option>Ocotepeque</option><option>Olancho</option><option>Santa Bárbara</option><option>Valle</option><option>Yoro</option><option>Colón</option>
+          </select>
+          <input type="text" id="clienteCiudad" class="cart-input" placeholder="Ciudad" style="display:none;" oninput="if(this.value)showNextField('clienteColonia')">
+          <input type="text" id="clienteColonia" class="cart-input" placeholder="Colonia / Barrio" style="display:none;" oninput="if(this.value)showNextField('clienteDireccion')">
+          <input type="text" id="clienteDireccion" class="cart-input" placeholder="Dirección exacta (calle, casa, referencia)" style="display:none;">
+        </div>
       </div>
       <div class="cart-discount-row" id="discountRow" style="display:none;">
         <span>Descuento 10%</span>
@@ -311,7 +321,8 @@
         <span class="policy-accept-text">He leído y acepto las <a href="politicas.html" target="_blank">políticas de empresa</a></span>
       </label>
       <button class="btn btn-primary cart-checkout-btn" id="checkoutBtn" style="width: 100%; text-align: center;" disabled>Finalizar Compra</button>
-      <button class="btn btn-outline cart-history-btn" id="historyBtn" style="width:100%;text-align:center;margin-top:8px;font-size:0.65rem;padding:10px;" onclick="showOrderHistory()">Mis Pedidos</button>
+      <div class="cart-section-divider"></div>
+      <button class="btn btn-outline cart-history-btn" id="historyBtn" style="width:100%;text-align:center;font-size:0.65rem;padding:10px;" onclick="showCommunications()">Mis Comunicaciones</button>
       <div class="cart-history" id="cartHistory" style="display:none;"></div>
     </div>
   </aside>
