@@ -54,3 +54,36 @@ async function marcarClienteNoNuevo(clienteId) {
     body: JSON.stringify({ es_nuevo: false })
   });
 }
+
+// Fetch orders by client email
+async function fetchPedidosPorEmail(email) {
+  // First get client ID
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/abril_clientes?email=eq.${encodeURIComponent(email)}&select=id`, {
+    headers: supabaseHeaders
+  });
+  const clients = await res.json();
+  if (clients.length === 0) return [];
+
+  const clienteId = clients[0].id;
+  const res2 = await fetch(`${SUPABASE_URL}/rest/v1/abril_pedidos?cliente_id=eq.${clienteId}&order=created_at.desc`, {
+    headers: supabaseHeaders
+  });
+  return await res2.json();
+}
+
+// Fetch ALL orders (for gerencia)
+async function fetchTodosPedidos() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/abril_pedidos?order=created_at.desc&select=*,abril_clientes(nombre,email)`, {
+    headers: supabaseHeaders
+  });
+  return await res.json();
+}
+
+// Update order status (from gerencia)
+async function actualizarEstadoPedido(pedidoId, nuevoEstado) {
+  await fetch(`${SUPABASE_URL}/rest/v1/abril_pedidos?id=eq.${pedidoId}`, {
+    method: 'PATCH',
+    headers: supabaseHeaders,
+    body: JSON.stringify({ estado: nuevoEstado })
+  });
+}

@@ -766,16 +766,24 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   .product-modal-name { font-size: 1.5rem; }
 }
 
-/* ---- Creando Category Card ---- */
+/* ---- Creando Category Card (Full Screen Haute Couture) ---- */
+#creandoCatFull {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
 .creando-cat-card {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--negro) 0%, #2a1a1a 50%, var(--negro-light) 100%);
-  padding: 80px 40px;
+  border-radius: 0;
+  background: linear-gradient(160deg, #0a0a0a 0%, #1a0f0f 30%, #0d0d0d 60%, #1a1215 100%);
+  padding: 140px 40px;
   text-align: center;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
+  min-height: 75vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .creando-cat-bg {
   position: absolute;
@@ -799,48 +807,56 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   z-index: 1;
 }
 .creando-cat-icon {
-  font-size: 2.5rem;
+  font-size: 1.2rem;
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  letter-spacing: 8px;
+  opacity: 0.4;
 }
 .creando-cat-label {
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   text-transform: uppercase;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
   color: var(--dorado);
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  opacity: 0.8;
 }
 .creando-cat-title {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 2.8rem;
   font-weight: 300;
   font-style: italic;
   color: var(--blanco);
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   line-height: 1.3;
 }
 .creando-cat-divider {
-  width: 40px;
-  height: 1px;
-  background: var(--rosa-palo);
-  margin: 0 auto 20px;
+  width: 60px;
+  height: 0.5px;
+  background: linear-gradient(90deg, transparent, var(--dorado), transparent);
+  margin: 0 auto 30px;
 }
 .creando-cat-desc {
   font-family: var(--font-body);
-  font-size: 0.9rem;
-  color: var(--gris-light);
-  line-height: 1.8;
-  max-width: 420px;
-  margin: 0 auto 30px;
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 2;
+  max-width: 460px;
+  margin: 0 auto 40px;
+  letter-spacing: 0.3px;
 }
 .creando-cat-footer {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   text-transform: uppercase;
-  letter-spacing: 3px;
+  letter-spacing: 5px;
   color: var(--rosa-palo);
-  opacity: 0.6;
+  opacity: 0.35;
+}
+@media (max-width: 768px) {
+  .creando-cat-card { padding: 80px 24px; min-height: 60vh; margin: -20px -16px; }
+  .creando-cat-title { font-size: 2rem; }
 }
 
 /* ============================================
@@ -1824,6 +1840,51 @@ input, textarea, select { font-family: inherit; font-size: inherit; }
   color: #16a34a;
   flex-shrink: 0;
 }
+/* ---- Order History in Cart ---- */
+.cart-history {
+  margin-top: 12px;
+  border-top: 1px solid var(--rosa-palo-light);
+  padding-top: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.history-order {
+  background: var(--marfil);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.history-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.history-order-header strong {
+  font-size: 0.75rem;
+  color: var(--negro);
+}
+.history-status {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.history-order-details {
+  font-size: 0.78rem;
+  color: var(--gris);
+  display: flex;
+  gap: 8px;
+}
+.history-order-date {
+  font-size: 0.7rem;
+  color: var(--gris-light);
+  margin-top: 2px;
+}
+
 .cart-discount-row {
   display: flex;
   justify-content: space-between;

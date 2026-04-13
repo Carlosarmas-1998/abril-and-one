@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cartOverlay.classList.remove('active');
     document.body.style.overflow = '';
   }
+  window.closeCart = closeCart;
 
   if (cartBtn) cartBtn.addEventListener('click', openCart);
   if (cartClose) cartClose.addEventListener('click', closeCart);
@@ -278,8 +279,10 @@ function renderCartItems() {
     const item = document.createElement('div');
     item.className = 'cart-item';
     item.innerHTML = `
-      <div class="cart-item-color" style="background: ${product.gradient};"></div>
-      <div class="cart-item-info">
+      <div class="cart-item-color" style="background: ${product.imagen ? 'transparent' : product.gradient}; cursor:pointer;" onclick="if(typeof openProductModal==='function'){closeCart();openProductModal(${product.id});}">
+        ${product.imagen ? `<img src="${product.imagen}" alt="${product.nombre}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">` : ''}
+      </div>
+      <div class="cart-item-info" style="cursor:pointer;" onclick="if(typeof openProductModal==='function'){closeCart();openProductModal(${product.id});}">
         <div class="cart-item-name">${product.nombre}</div>
         <div class="cart-item-cat">${product.categoria}</div>
         <div class="cart-item-price">L. ${product.precio.toLocaleString('es-HN')} ${qty > 1 ? '× ' + qty : ''}</div>
@@ -331,6 +334,60 @@ function updateCartTotals() {
     const otherHalf = total - half;
     if (creditNow) creditNow.textContent = 'L. ' + half.toLocaleString('es-HN');
     if (creditLater) creditLater.textContent = 'L. ' + otherHalf.toLocaleString('es-HN');
+  }
+}
+
+// ---- Order History ----
+const ESTADO_COLORS = {
+  pendiente: '#f39c12',
+  confirmado: '#3498db',
+  enviado: '#9b59b6',
+  entregado: '#27ae60',
+  cancelado: '#e74c3c'
+};
+
+async function showOrderHistory() {
+  const historyEl = document.getElementById('cartHistory');
+  if (!historyEl) return;
+
+  if (historyEl.style.display !== 'none') {
+    historyEl.style.display = 'none';
+    return;
+  }
+
+  const email = document.getElementById('clienteEmail')?.value.trim();
+  if (!email || !email.includes('@')) {
+    alert('Ingresa tu correo electrónico para ver tus pedidos.');
+    document.getElementById('clienteEmail')?.focus();
+    return;
+  }
+
+  historyEl.style.display = 'block';
+  historyEl.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.8rem;padding:16px;">Cargando pedidos...</p>';
+
+  try {
+    const pedidos = await fetchPedidosPorEmail(email);
+    if (pedidos.length === 0) {
+      historyEl.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.8rem;padding:16px;">No tienes pedidos aún.</p>';
+      return;
+    }
+
+    historyEl.innerHTML = '<p class="cart-form-label" style="margin-bottom:12px;">Historial de Pedidos</p>' +
+      pedidos.map(p => `
+        <div class="history-order">
+          <div class="history-order-header">
+            <strong>${p.pedido_id}</strong>
+            <span class="history-status" style="background:${ESTADO_COLORS[p.estado] || '#999'}">${p.estado.toUpperCase()}</span>
+          </div>
+          <div class="history-order-details">
+            <span>Total: L. ${Number(p.total).toLocaleString('es-HN')}</span>
+            ${p.descuento > 0 ? `<span style="color:#16a34a;">(-10% desc.)</span>` : ''}
+          </div>
+          <div class="history-order-date">${new Date(p.created_at).toLocaleDateString('es-HN')}</div>
+        </div>
+      `).join('');
+  } catch (e) {
+    historyEl.innerHTML = '<p style="text-align:center;color:var(--rojo,#e74c3c);font-size:0.8rem;padding:16px;">Error al cargar pedidos.</p>';
   }
 }
 

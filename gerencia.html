@@ -392,6 +392,20 @@
     /* New email button */
     .dash-btn-email { border-color: var(--rosa); color: var(--rosa); }
     .dash-btn-email:hover { background: rgba(198,170,170,0.15); }
+
+    .estado-select {
+      padding: 4px 8px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+    .estado-select option { background: #fff; color: var(--negro); }
   </style>
 </head>
 <body>
@@ -450,10 +464,18 @@
       </div>
     </div>
 
-    <!-- PEDIDOS -->
+    <!-- PEDIDOS (SUPABASE) -->
     <div class="dash-grid">
       <div class="dash-card dash-card-full">
-        <h2>Historial de Pedidos</h2>
+        <h2>Pedidos en Base de Datos</h2>
+        <div id="pedidosSupabase"><p style="color:var(--gris);font-size:0.8rem;">Cargando pedidos...</p></div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS LOCALES -->
+    <div class="dash-grid">
+      <div class="dash-card dash-card-full">
+        <h2>Historial Local (Analytics)</h2>
         <div id="pedidosTable"></div>
       </div>
     </div>
@@ -509,6 +531,7 @@
   </div>
 
   <script src="js/analytics.js"></script>
+  <script src="js/supabase.js"></script>
   <script>
     function refreshDash() {
       const stats = AO_ANALYTICS.getEstadisticas();
@@ -754,10 +777,97 @@
       refreshDash();
     }
 
+    // ---- SUPABASE PEDIDOS ----
+    const ESTADO_OPTIONS = ['pendiente', 'confirmado', 'enviado', 'entregado', 'cancelado'];
+    const ESTADO_COLORS = {
+      pendiente: 'var(--amarillo)',
+      confirmado: 'var(--azul)',
+      enviado: '#9b59b6',
+      entregado: 'var(--verde)',
+      cancelado: 'var(--rojo)'
+    };
+
+    async function loadPedidosSupabase() {
+      const container = document.getElementById('pedidosSupabase');
+      try {
+        const pedidos = await fetchTodosPedidos();
+        if (pedidos.length === 0) {
+          container.innerHTML = '<div class="dash-empty">Sin pedidos en la base de datos</div>';
+          return;
+        }
+        container.innerHTML = `<table class="dash-table">
+          <thead><tr><th>Pedido</th><th>Cliente</th><th>Email</th><th>Productos</th><th>Desc.</th><th>Total</th><th>Método</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>${pedidos.map(p => {
+            const cliente = p.abril_clientes || {};
+            return `<tr id="row-${p.id}">
+              <td><strong style="cursor:pointer;color:var(--azul);text-decoration:underline;" onclick="showPedidoDetail('${p.id}')">${p.pedido_id}</strong><br><span style="font-size:0.68rem;color:var(--gris-light)">${new Date(p.created_at).toLocaleDateString('es-HN')}</span></td>
+              <td>${cliente.nombre || '—'}</td>
+              <td><span class="email-link" onclick="openEmailModal('${cliente.email || ''}')">${cliente.email || '—'}</span></td>
+              <td style="max-width:150px;">${(p.productos || []).map(pr => pr.nombre).join(', ')}</td>
+              <td>${p.descuento > 0 ? '<span style="color:var(--verde)">-L.' + Number(p.descuento).toLocaleString('es-HN') + '</span>' : '—'}</td>
+              <td><strong>L. ${Number(p.total).toLocaleString('es-HN')}</strong></td>
+              <td><span class="badge ${p.es_credito ? 'badge-rosa' : 'badge-blue'}">${p.es_credito ? 'Crédito ONE' : 'Completo'}</span></td>
+              <td>
+                <select class="estado-select" style="background:${ESTADO_COLORS[p.estado] || '#999'}" onchange="cambiarEstado('${p.id}', this.value, this)">
+                  ${ESTADO_OPTIONS.map(e => `<option value="${e}" ${p.estado === e ? 'selected' : ''}>${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
+                </select>
+              </td>
+              <td>
+                <button class="dash-btn" style="font-size:0.6rem;padding:5px 10px;" onclick="openEmailModal('${cliente.email || ''}')">Contactar</button>
+              </td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>`;
+      } catch(e) {
+        container.innerHTML = '<div class="dash-empty" style="color:var(--rojo)">Error al cargar pedidos de Supabase</div>';
+      }
+    }
+
+    async function cambiarEstado(pedidoId, nuevoEstado, selectEl) {
+      selectEl.disabled = true;
+      try {
+        await actualizarEstadoPedido(pedidoId, nuevoEstado);
+        selectEl.style.background = ESTADO_COLORS[nuevoEstado] || '#999';
+      } catch(e) {
+        alert('Error al cambiar estado');
+      }
+      selectEl.disabled = false;
+    }
+
+    function showPedidoDetail(pedidoId) {
+      // Find the row and toggle detail
+      const row = document.getElementById('row-' + pedidoId);
+      const existing = document.getElementById('detail-' + pedidoId);
+      if (existing) { existing.remove(); return; }
+
+      // Get pedido data from the table cells
+      const cells = row.querySelectorAll('td');
+      const detailRow = document.createElement('tr');
+      detailRow.id = 'detail-' + pedidoId;
+      detailRow.innerHTML = `<td colspan="9" style="background:var(--marfil);padding:16px;border-radius:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:0.82rem;">
+          <div>
+            <strong>Pedido:</strong> ${cells[0].querySelector('strong').textContent}<br>
+            <strong>Fecha:</strong> ${cells[0].querySelector('span').textContent}<br>
+            <strong>Cliente:</strong> ${cells[1].textContent}<br>
+            <strong>Email:</strong> ${cells[2].textContent}
+          </div>
+          <div>
+            <strong>Productos:</strong> ${cells[3].textContent}<br>
+            <strong>Descuento:</strong> ${cells[4].textContent}<br>
+            <strong>Total:</strong> ${cells[5].textContent}<br>
+            <strong>Método:</strong> ${cells[6].textContent}
+          </div>
+        </div>
+      </td>`;
+      row.after(detailRow);
+    }
+
     // Init
     refreshDash();
-    // Auto-refresh cada 30 segundos
+    loadPedidosSupabase();
     setInterval(refreshDash, 30000);
+    setInterval(loadPedidosSupabase, 30000);
   </script>
 </body>
 </html>

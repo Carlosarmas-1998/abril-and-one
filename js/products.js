@@ -20,21 +20,21 @@ const PRODUCTS = [
 const CREANDO_CATS = {
   rimel: {
     titulo: "Rímel",
-    subtitulo: "Creando la mirada que habla sin palabras",
-    desc: "Estamos formulando un rímel que entiende tus pestañas. Fibras inteligentes, volumen real, cero grumos. Cada pestaña será una declaración de intención.",
-    icono: "👁"
+    subtitulo: "La mirada que no necesita palabras",
+    desc: "Fibra a fibra, estamos diseñando un rímel que entiende la anatomía de cada pestaña. Volumen sin peso. Definición sin esfuerzo. Una fórmula que se está creando con la misma obsesión con la que tú cuidas cada detalle de tu presencia.",
+    icono: "— I —"
   },
   sombras: {
     titulo: "Sombras",
-    subtitulo: "Creando los colores que aún no existen",
-    desc: "Paletas diseñadas para romper reglas. Pigmentos que se funden como seda, tonos que nacen del amanecer y la medianoche. Pronto en tus manos.",
-    icono: "✨"
+    subtitulo: "Tonos que aún no tienen nombre",
+    desc: "Pigmentos que se funden como terciopelo sobre la piel. Tonos nacidos entre el amanecer dorado y la medianoche profunda. Cada paleta será una obra de arte — estamos creándola con la paciencia que merece lo extraordinario.",
+    icono: "— II —"
   },
   delineadores: {
     titulo: "Delineadores",
-    subtitulo: "Creando la línea perfecta para cada historia",
-    desc: "Precisión milimétrica. Fórmula waterproof. Un trazo que define quién eres. Estamos perfeccionando cada detalle para que tu mirada sea inolvidable.",
-    icono: "🖊"
+    subtitulo: "El trazo que define quién eres",
+    desc: "Precisión milimétrica. Fórmula waterproof de larga duración. Un solo trazo para transformar tu mirada en algo inolvidable. Estamos perfeccionando cada molécula porque tu mirada merece exactitud absoluta.",
+    icono: "— III —"
   }
 };
 
@@ -163,8 +163,17 @@ function renderCreandoCategory(container, cat) {
   const info = CREANDO_CATS[cat];
   if (!info) return;
 
-  container.innerHTML = `
-    <div class="creando-cat-card scroll-reveal">
+  // Hide the grid and render full-width
+  container.style.display = 'none';
+
+  // Remove previous creando section if any
+  const prev = document.getElementById('creandoCatFull');
+  if (prev) prev.remove();
+
+  const section = document.createElement('div');
+  section.id = 'creandoCatFull';
+  section.innerHTML = `
+    <div class="creando-cat-card">
       <div class="creando-cat-bg">
         <div class="creando-particle"></div>
         <div class="creando-particle"></div>
@@ -176,11 +185,11 @@ function renderCreandoCategory(container, cat) {
         <h3 class="creando-cat-title">${info.subtitulo}</h3>
         <div class="creando-cat-divider"></div>
         <p class="creando-cat-desc">${info.desc}</p>
-        <p class="creando-cat-footer">A B R I L & O N E — Pronto para ti</p>
+        <p class="creando-cat-footer">A B R I L  &  O N E — Pronto para ti</p>
       </div>
     </div>
   `;
-  initScrollReveal();
+  container.parentNode.appendChild(section);
 }
 
 function renderProducts(container, products) {
@@ -198,6 +207,11 @@ function renderFeatured() {
 function renderCatalog(filter) {
   const grid = document.getElementById('catalogGrid');
   if (!grid) return;
+
+  // Clean up previous creando section
+  const prev = document.getElementById('creandoCatFull');
+  if (prev) prev.remove();
+  grid.style.display = '';
 
   // If it's a "creando" category, show the elegant coming soon
   if (CREANDO_CATS[filter]) {
@@ -288,6 +302,12 @@ function showAllCategories() {
   const catSection = document.getElementById('categoriasSection');
   const prodSection = document.getElementById('productosSection');
   if (!catSection || !prodSection) return;
+
+  // Clean up creando full section
+  const creandoFull = document.getElementById('creandoCatFull');
+  if (creandoFull) creandoFull.remove();
+  const grid = document.getElementById('catalogGrid');
+  if (grid) grid.style.display = '';
 
   prodSection.style.display = 'none';
   catSection.style.display = 'block';
