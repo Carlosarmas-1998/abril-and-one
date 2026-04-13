@@ -523,37 +523,47 @@
     }
     .pedido-card-detail.show { display: block; }
 
-    /* NAV TABS */
-    .dash-tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 28px;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid rgba(0,0,0,0.08);
-    }
-    .dash-tab {
-      flex: 1;
-      padding: 14px 12px;
-      font-family: var(--font-body);
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      border: none;
+    /* VERTICAL SECTIONS */
+    .dash-section {
       background: white;
-      color: var(--gris);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+    .dash-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.2s;
+      user-select: none;
     }
-    .dash-tab:not(:last-child) { border-right: 1px solid rgba(0,0,0,0.06); }
-    .dash-tab:hover { background: #f8f5f0; color: var(--negro); }
-    .dash-tab.active {
+    .dash-section-header:hover { background: rgba(0,0,0,0.02); }
+    .dash-section-header span:first-child {
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--negro);
+    }
+    .dash-section-header.active {
       background: var(--negro);
-      color: var(--marfil);
     }
-    .dash-panel { display: none; }
-    .dash-panel.active { display: block; }
+    .dash-section-header.active span:first-child { color: var(--marfil); }
+    .dash-section-header.active .dash-section-arrow { color: var(--rosa); }
+    .dash-section-arrow {
+      font-size: 0.9rem;
+      color: var(--gris-light);
+      transition: transform 0.3s;
+    }
+    .dash-section-header:not(.active) .dash-section-arrow { transform: rotate(-90deg); }
+    .dash-section-body {
+      padding: 24px 28px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
   </style>
 </head>
 <body>
@@ -571,88 +581,82 @@
 
   <main class="dash-main">
 
-    <!-- NAV TABS -->
-    <div class="dash-tabs">
-      <button class="dash-tab active" onclick="switchTab('pedidos', this)">Pedidos</button>
-      <button class="dash-tab" onclick="switchTab('soporte', this)">Soporte</button>
-      <button class="dash-tab" onclick="switchTab('web', this)">Datos Web</button>
-      <button class="dash-tab" onclick="switchTab('bancarios', this)">Datos Bancarios</button>
-      <button class="dash-tab" onclick="switchTab('config', this)">Configuraciones</button>
-    </div>
-
-    <!-- ========== TAB 1: PEDIDOS ========== -->
-    <div class="dash-panel active" id="panel-pedidos">
-      <div class="dash-card" style="margin-bottom:20px;">
-        <h2>Pedidos (Base de Datos)</h2>
+    <!-- ========== SECCION 1: PEDIDOS (abierta por defecto) ========== -->
+    <div class="dash-section">
+      <div class="dash-section-header active" onclick="toggleSection(this)">
+        <span>Pedidos</span>
+        <span class="dash-section-arrow">▾</span>
+      </div>
+      <div class="dash-section-body">
         <div id="pedidosSupabase"><p style="color:var(--gris);font-size:0.8rem;">Cargando pedidos...</p></div>
-      </div>
-      <div class="dash-card">
-        <h2>Historial Local (Analytics)</h2>
-        <div id="pedidosTable"></div>
+        <div style="margin-top:20px;">
+          <h3 style="font-family:var(--font-display);font-size:1rem;color:var(--gris);margin-bottom:12px;">Historial Local</h3>
+          <div id="pedidosTable"></div>
+        </div>
       </div>
     </div>
 
-    <!-- ========== TAB 2: SOPORTE ========== -->
-    <div class="dash-panel" id="panel-soporte">
-      <div class="dash-card">
-        <h2>Mensajes de Soporte</h2>
+    <!-- ========== SECCION 2: SOPORTE ========== -->
+    <div class="dash-section">
+      <div class="dash-section-header" onclick="toggleSection(this)">
+        <span>Soporte</span>
+        <span class="dash-section-arrow">▾</span>
+      </div>
+      <div class="dash-section-body" style="display:none;">
         <div id="soporteTable"><p style="color:var(--gris);font-size:0.8rem;">Cargando mensajes...</p></div>
       </div>
     </div>
 
-    <!-- ========== TAB 3: DATOS WEB ========== -->
-    <div class="dash-panel" id="panel-web">
-      <div class="kpi-grid" id="kpiGrid"></div>
-
-      <div class="dash-grid">
-        <div class="dash-card">
-          <h2>Actividad por Hora</h2>
-          <div class="hours-chart" id="hoursChart"></div>
-        </div>
-        <div class="dash-card">
-          <h2>Productos Más Agregados</h2>
-          <div id="topProductos"></div>
-        </div>
+    <!-- ========== SECCION 3: DATOS WEB ========== -->
+    <div class="dash-section">
+      <div class="dash-section-header" onclick="toggleSection(this)">
+        <span>Datos Web</span>
+        <span class="dash-section-arrow">▾</span>
       </div>
-
-      <div class="dash-grid">
-        <div class="dash-card">
-          <h2>Categorías Más Visitadas</h2>
-          <div id="topCategorias"></div>
+      <div class="dash-section-body" style="display:none;">
+        <div class="kpi-grid" id="kpiGrid"></div>
+        <div class="dash-grid">
+          <div class="dash-card">
+            <h2>Actividad por Hora</h2>
+            <div class="hours-chart" id="hoursChart"></div>
+          </div>
+          <div class="dash-card">
+            <h2>Productos Más Agregados</h2>
+            <div id="topProductos"></div>
+          </div>
         </div>
-        <div class="dash-card">
-          <h2>Páginas Más Visitadas</h2>
-          <div id="topPaginas"></div>
+        <div class="dash-grid">
+          <div class="dash-card">
+            <h2>Categorías Más Visitadas</h2>
+            <div id="topCategorias"></div>
+          </div>
+          <div class="dash-card">
+            <h2>Páginas Más Visitadas</h2>
+            <div id="topPaginas"></div>
+          </div>
         </div>
-      </div>
-
-      <div class="dash-grid">
-        <div class="dash-card">
-          <h2>Suscripciones Newsletter</h2>
-          <div id="suscripcionesTable"></div>
-        </div>
-        <div class="dash-card">
-          <h2>Últimas Visitas</h2>
-          <div id="visitasTable"></div>
+        <div class="dash-grid">
+          <div class="dash-card">
+            <h2>Suscripciones Newsletter</h2>
+            <div id="suscripcionesTable"></div>
+          </div>
+          <div class="dash-card">
+            <h2>Últimas Visitas</h2>
+            <div id="visitasTable"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ========== TAB 4: DATOS BANCARIOS ========== -->
-    <div class="dash-panel" id="panel-bancarios">
-      <div class="dash-card" style="margin-bottom:20px;">
-        <h2>Resumen Financiero</h2>
-        <div class="money-grid" id="moneyGrid"></div>
+    <!-- ========== SECCION 4: DATOS BANCARIOS ========== -->
+    <div class="dash-section">
+      <div class="dash-section-header" onclick="toggleSection(this)">
+        <span>Datos Bancarios</span>
+        <span class="dash-section-arrow">▾</span>
       </div>
-      <div class="dash-card" style="margin-bottom:20px;">
-        <h2>Detalle de Pagos</h2>
-        <div id="detallesPagos">
-          <div class="dash-empty">Los detalles de pagos se generan desde los pedidos registrados</div>
-        </div>
-      </div>
-      <div class="dash-card">
-        <h2>Información Bancaria</h2>
-        <div style="padding:16px 0;font-size:0.85rem;color:var(--negro-light);line-height:2;">
+      <div class="dash-section-body" style="display:none;">
+        <div class="money-grid" id="moneyGrid" style="margin-bottom:20px;"></div>
+        <div style="font-size:0.85rem;color:var(--negro-light);line-height:2;padding:16px;background:white;border-radius:8px;">
           <p><strong>Cuenta de cobro:</strong> makeupdeabril@gmail.com</p>
           <p><strong>Moneda:</strong> Lempiras (HNL)</p>
           <p><strong>Método principal:</strong> Transferencia / Pago en persona</p>
@@ -661,26 +665,25 @@
       </div>
     </div>
 
-    <!-- ========== TAB 5: CONFIGURACIONES ========== -->
-    <div class="dash-panel" id="panel-config">
-      <div class="dash-card" style="margin-bottom:20px;">
-        <h2>General</h2>
-        <div style="padding:16px 0;font-size:0.85rem;color:var(--negro-light);line-height:2.2;">
-          <p><strong>Nombre del negocio:</strong> A B R I L & O N E</p>
-          <p><strong>Correo de contacto:</strong> makeupdeabril@gmail.com</p>
+    <!-- ========== SECCION 5: CONFIGURACIONES ========== -->
+    <div class="dash-section">
+      <div class="dash-section-header" onclick="toggleSection(this)">
+        <span>Configuraciones</span>
+        <span class="dash-section-arrow">▾</span>
+      </div>
+      <div class="dash-section-body" style="display:none;">
+        <div style="font-size:0.85rem;color:var(--negro-light);line-height:2.2;padding:16px;background:white;border-radius:8px;margin-bottom:16px;">
+          <p><strong>Negocio:</strong> A B R I L & O N E</p>
+          <p><strong>Correo:</strong> makeupdeabril@gmail.com</p>
           <p><strong>Dominio:</strong> <a href="https://abril.makeup" target="_blank" style="color:var(--azul);">abril.makeup</a></p>
           <p><strong>GitHub:</strong> <a href="https://github.com/Carlosarmas-1998/abril-and-one" target="_blank" style="color:var(--azul);">Carlosarmas-1998/abril-and-one</a></p>
-          <p><strong>Vercel:</strong> <a href="https://abril-and-one.vercel.app" target="_blank" style="color:var(--azul);">abril-and-one.vercel.app</a></p>
-          <p><strong>Base de datos:</strong> Supabase (foglmtspevcaxkwoqveb)</p>
+          <p><strong>Base de datos:</strong> Supabase</p>
         </div>
-      </div>
-      <div class="dash-card" style="margin-bottom:20px;">
-        <h2>Acciones</h2>
-        <div style="display:flex;flex-direction:column;gap:12px;padding:16px 0;">
-          <button class="dash-btn dash-btn-email" onclick="openEmailModal()" style="width:fit-content;padding:12px 24px;">✉ Enviar Correo a Cliente</button>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <button class="dash-btn dash-btn-email" onclick="openEmailModal()" style="width:fit-content;padding:12px 24px;">✉ Enviar Correo</button>
           <button class="dash-btn" onclick="location.href='index.html'" style="width:fit-content;padding:12px 24px;">Ir a la Web</button>
           <button class="dash-btn" onclick="refreshDash()" style="width:fit-content;padding:12px 24px;">Actualizar Datos</button>
-          <button class="dash-btn dash-btn-danger" onclick="if(confirm('¿Borrar todos los datos de analytics locales?')){AO_ANALYTICS.resetDB();refreshDash();}" style="width:fit-content;padding:12px 24px;">Resetear Analytics</button>
+          <button class="dash-btn dash-btn-danger" onclick="if(confirm('¿Borrar analytics?')){AO_ANALYTICS.resetDB();refreshDash();}" style="width:fit-content;padding:12px 24px;">Resetear Analytics</button>
         </div>
       </div>
     </div>
@@ -1088,22 +1091,18 @@
       }).catch(() => alert('Error al responder.'));
     }
 
-    // Tab switching
-    function switchTab(tab, btn) {
-      document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('panel-' + tab)?.classList.add('active');
-      btn.classList.add('active');
+    // Toggle vertical sections
+    function toggleSection(header) {
+      const body = header.nextElementSibling;
+      const isOpen = header.classList.contains('active');
+      if (isOpen) {
+        header.classList.remove('active');
+        body.style.display = 'none';
+      } else {
+        header.classList.add('active');
+        body.style.display = '';
+      }
     }
-
-    // Collapsible sections
-    document.querySelectorAll('.dash-card h2').forEach(h2 => {
-      h2.addEventListener('click', () => {
-        h2.classList.toggle('collapsed');
-        const body = h2.nextElementSibling;
-        if (body) body.classList.toggle('hidden');
-      });
-    });
 
     // Init
     refreshDash();
