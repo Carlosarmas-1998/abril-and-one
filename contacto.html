@@ -74,7 +74,23 @@
             <label for="mensaje">Mensaje</label>
             <textarea id="mensaje" name="mensaje" placeholder="Cuéntanos en qué podemos ayudarte..." required></textarea>
           </div>
-          <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Enviar Mensaje</button>
+          <div class="form-group">
+            <label>Adjuntar Fotos o Videos <span style="font-weight:300;font-size:0.7rem;text-transform:none;letter-spacing:0;">(opcional)</span></label>
+            <div class="file-upload-area" id="fileUploadArea">
+              <input type="file" id="soporteFiles" multiple accept="image/*,video/*" style="display:none;" onchange="handleFileSelect(this.files)">
+              <div class="file-upload-prompt" onclick="document.getElementById('soporteFiles').click()">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p>Toca para seleccionar fotos o videos</p>
+                <span>JPG, PNG, MP4 — Max 10MB cada uno</span>
+              </div>
+              <div class="file-preview-list" id="filePreviewList"></div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="align-self: flex-start;" id="contactSubmitBtn">Enviar Mensaje</button>
+          <div class="upload-progress" id="uploadProgress" style="display:none;">
+            <div class="upload-progress-bar" id="uploadProgressBar"></div>
+            <span id="uploadProgressText">Subiendo archivos...</span>
+          </div>
         </form>
 
         <div class="form-success">
@@ -150,16 +166,36 @@
     </div>
   </section>
 
-  <!-- MIS COMUNICACIONES -->
+  <!-- MIS COMUNICACIONES (con OTP) -->
   <section class="section" style="padding-top: 0;">
     <div class="container" style="max-width: 700px;">
       <div class="comunicaciones-box">
         <h2 class="section-title" style="font-size:1.8rem;">Mis Comunicaciones</h2>
-        <p style="text-align:center;color:var(--gris);font-size:0.85rem;margin-bottom:20px;">Consulta el estado de tus mensajes y pedidos</p>
-        <div class="comunicaciones-form">
+        <p style="text-align:center;color:var(--gris);font-size:0.85rem;margin-bottom:20px;">Ingresa tu correo y te enviaremos un codigo de acceso</p>
+
+        <!-- Step 1: Email -->
+        <div id="otpStep1" class="comunicaciones-form">
           <input type="email" id="comEmail" class="cart-input" placeholder="Tu correo electrónico" style="max-width:350px;margin:0 auto 12px;">
-          <button class="btn btn-primary" style="font-size:0.7rem;padding:10px 30px;" onclick="cargarComunicaciones()">Consultar</button>
+          <button class="btn btn-primary" style="font-size:0.7rem;padding:10px 30px;" id="otpSendBtn" onclick="requestOTP()">Enviar Codigo</button>
         </div>
+
+        <!-- Step 2: OTP Input -->
+        <div id="otpStep2" style="display:none;" class="comunicaciones-form">
+          <p style="text-align:center;color:var(--gris);font-size:0.82rem;margin-bottom:12px;">Ingresa el codigo de 6 digitos enviado a <strong id="otpEmailDisplay"></strong></p>
+          <div class="otp-input-group" id="otpInputGroup">
+            <input type="text" maxlength="1" class="otp-digit" data-idx="0" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" maxlength="1" class="otp-digit" data-idx="1" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-digit" data-idx="2" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-digit" data-idx="3" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-digit" data-idx="4" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-digit" data-idx="5" inputmode="numeric">
+          </div>
+          <p id="otpError" style="color:#e74c3c;font-size:0.78rem;text-align:center;display:none;margin-top:8px;"></p>
+          <button class="btn btn-primary" style="font-size:0.7rem;padding:10px 30px;margin-top:12px;" id="otpVerifyBtn" onclick="verifyOTP()">Verificar</button>
+          <button style="background:none;border:none;color:var(--gris);font-size:0.75rem;margin-top:8px;cursor:pointer;text-decoration:underline;" onclick="requestOTP()">Reenviar codigo</button>
+        </div>
+
+        <!-- Step 3: Results -->
         <div id="comunicacionesResult" style="margin-top:20px;"></div>
       </div>
     </div>

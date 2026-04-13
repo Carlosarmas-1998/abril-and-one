@@ -90,12 +90,40 @@ async function actualizarEstadoPedido(pedidoId, nuevoEstado) {
 
 // ---- SOPORTE / COMUNICACIONES ----
 
-// Send a support message
-async function enviarMensajeSoporte(nombre, email, asunto, mensaje) {
+// Upload file to Supabase Storage
+async function uploadSoporteFile(file) {
+  const ext = file.name.split('.').pop();
+  const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${ext}`;
+  const filePath = `adjuntos/${fileName}`;
+
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/soporte-adjuntos/${filePath}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': file.type,
+      'x-upsert': 'true'
+    },
+    body: file
+  });
+
+  if (!res.ok) throw new Error('Error al subir archivo');
+
+  return {
+    name: file.name,
+    type: file.type.startsWith('video/') ? 'video' : 'image',
+    url: `${SUPABASE_URL}/storage/v1/object/public/soporte-adjuntos/${filePath}`,
+    size: file.size
+  };
+}
+
+// Send a support message (with optional attachments)
+async function enviarMensajeSoporte(nombre, email, asunto, mensaje, adjuntos) {
+  adjuntos = adjuntos || [];
   const res = await fetch(`${SUPABASE_URL}/rest/v1/abril_soporte`, {
     method: 'POST',
     headers: supabaseHeaders,
-    body: JSON.stringify({ nombre, email, asunto, mensaje, estado: 'nuevo' })
+    body: JSON.stringify({ nombre, email, asunto, mensaje, adjuntos, estado: 'nuevo' })
   });
   return await res.json();
 }
@@ -123,4 +151,39 @@ async function responderSoporte(ticketId, respuesta) {
     headers: supabaseHeaders,
     body: JSON.stringify({ respuesta, estado: 'respondido', respondido_at: new Date().toISOString() })
   });
+}
+
+// ---- OTP SYSTEM ----
+
+// Send OTP to email via Edge Function
+async function enviarOTP(email) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/send-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  return await res.json();
+}
+
+// Verify OTP code
+async function verificarOTP(email, codigo) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/abril_otp?email=eq.${encodeURIComponent(email)}&codigo=eq.${codigo}&usado=eq.false&order=created_at.desc&limit=1`,
+    { headers: supabaseHeaders }
+  );
+  const data = await res.json();
+
+  if (data.length === 0) return { valid: false, error: 'Codigo incorrecto' };
+
+  const otp = data[0];
+  if (new Date(otp.expires_at) < new Date()) return { valid: false, error: 'Codigo expirado' };
+
+  // Mark as used
+  await fetch(`${SUPABASE_URL}/rest/v1/abril_otp?id=eq.${otp.id}`, {
+    method: 'PATCH',
+    headers: supabaseHeaders,
+    body: JSON.stringify({ usado: true })
+  });
+
+  return { valid: true };
 }

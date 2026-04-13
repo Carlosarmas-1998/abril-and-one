@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ---- Contact form → Supabase ----
+  // ---- Contact form → Supabase (with file uploads) ----
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
     contactForm.addEventListener('submit', async (e) => {
@@ -82,21 +82,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!nombre || !email || !asunto || !mensaje) return;
 
-      const btn = contactForm.querySelector('button[type="submit"]');
+      const btn = document.getElementById('contactSubmitBtn') || contactForm.querySelector('button[type="submit"]');
       btn.disabled = true;
       btn.textContent = 'Enviando...';
 
       try {
+        // Upload files first
+        let adjuntos = [];
+        const fileInput = document.getElementById('soporteFiles');
+        if (fileInput && fileInput.files.length > 0) {
+          const progressEl = document.getElementById('uploadProgress');
+          const progressBar = document.getElementById('uploadProgressBar');
+          const progressText = document.getElementById('uploadProgressText');
+          if (progressEl) progressEl.style.display = 'block';
+
+          const files = Array.from(fileInput.files);
+          for (let i = 0; i < files.length; i++) {
+            if (progressText) progressText.textContent = `Subiendo ${i + 1} de ${files.length}...`;
+            if (progressBar) progressBar.style.width = `${((i + 1) / files.length) * 100}%`;
+            const uploaded = await uploadSoporteFile(files[i]);
+            adjuntos.push(uploaded);
+          }
+        }
+
         if (typeof enviarMensajeSoporte === 'function') {
-          await enviarMensajeSoporte(nombre, email, asunto, mensaje);
+          await enviarMensajeSoporte(nombre, email, asunto, mensaje, adjuntos);
         }
         contactForm.style.display = 'none';
         const success = document.querySelector('.form-success');
         if (success) success.classList.add('show');
+        const progressEl = document.getElementById('uploadProgress');
+        if (progressEl) progressEl.style.display = 'none';
       } catch(err) {
         alert('Error al enviar. Intenta de nuevo.');
         btn.disabled = false;
         btn.textContent = 'Enviar Mensaje';
+        const progressEl = document.getElementById('uploadProgress');
+        if (progressEl) progressEl.style.display = 'none';
       }
     });
   }
@@ -530,7 +552,158 @@ async function cargarComunicaciones() {
   }
 }
 
-// ---- Cart Communications Toggle ----
+// ---- File Upload Preview ----
+function handleFileSelect(files) {
+  const previewList = document.getElementById('filePreviewList');
+  if (!previewList) return;
+
+  Array.from(files).forEach(file => {
+    if (file.size > 10 * 1024 * 1024) {
+      alert(`${file.name} es demasiado grande (max 10MB)`);
+      return;
+    }
+
+    const item = document.createElement('div');
+    item.className = 'file-preview-item';
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        item.innerHTML = `
+          <img src="${e.target.result}" alt="${file.name}">
+          <span class="file-preview-name">${file.name}</span>
+          <button class="file-preview-remove" onclick="removeFilePreview(this, '${file.name}')" aria-label="Quitar">&times;</button>
+        `;
+      };
+      reader.readAsDataURL(file);
+    } else if (file.type.startsWith('video/')) {
+      item.innerHTML = `
+        <div class="file-preview-video">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <span class="file-preview-name">${file.name}</span>
+        <button class="file-preview-remove" onclick="removeFilePreview(this, '${file.name}')" aria-label="Quitar">&times;</button>
+      `;
+    }
+
+    previewList.appendChild(item);
+  });
+}
+
+function removeFilePreview(btn, fileName) {
+  const item = btn.closest('.file-preview-item');
+  if (item) item.remove();
+
+  // Remove from file input (recreate it since FileList is read-only)
+  const input = document.getElementById('soporteFiles');
+  if (!input) return;
+  const dt = new DataTransfer();
+  Array.from(input.files).forEach(f => {
+    if (f.name !== fileName) dt.items.add(f);
+  });
+  input.files = dt.files;
+}
+
+// ---- OTP System ----
+let _otpEmail = '';
+
+async function requestOTP() {
+  const emailInput = document.getElementById('comEmail');
+  const email = emailInput?.value.trim();
+  if (!email || !email.includes('@')) {
+    alert('Ingresa un correo válido.');
+    return;
+  }
+
+  _otpEmail = email;
+  const btn = document.getElementById('otpSendBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+
+  try {
+    const result = await enviarOTP(email);
+    if (result.error) throw new Error(result.error);
+
+    // Show step 2
+    document.getElementById('otpStep1').style.display = 'none';
+    document.getElementById('otpStep2').style.display = 'flex';
+    document.getElementById('otpEmailDisplay').textContent = email;
+    document.getElementById('otpError').style.display = 'none';
+
+    // Focus first digit
+    const firstDigit = document.querySelector('.otp-digit[data-idx="0"]');
+    if (firstDigit) firstDigit.focus();
+  } catch (err) {
+    alert('Error al enviar codigo. Intenta de nuevo.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Enviar Codigo'; }
+  }
+}
+
+async function verifyOTP() {
+  const digits = document.querySelectorAll('.otp-digit');
+  const codigo = Array.from(digits).map(d => d.value).join('');
+  const errorEl = document.getElementById('otpError');
+
+  if (codigo.length !== 6) {
+    if (errorEl) { errorEl.textContent = 'Ingresa los 6 digitos'; errorEl.style.display = 'block'; }
+    return;
+  }
+
+  const btn = document.getElementById('otpVerifyBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verificando...'; }
+
+  try {
+    const result = await verificarOTP(_otpEmail, codigo);
+    if (!result.valid) {
+      if (errorEl) { errorEl.textContent = result.error; errorEl.style.display = 'block'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Verificar'; }
+      return;
+    }
+
+    // OTP valid - load communications
+    document.getElementById('otpStep2').style.display = 'none';
+    document.getElementById('comEmail').value = _otpEmail;
+    await cargarComunicaciones();
+  } catch (err) {
+    if (errorEl) { errorEl.textContent = 'Error al verificar'; errorEl.style.display = 'block'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Verificar'; }
+  }
+}
+
+// OTP digit auto-advance
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.otp-digit').forEach(input => {
+    input.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (val && val.length === 1) {
+        const idx = parseInt(e.target.dataset.idx);
+        const next = document.querySelector(`.otp-digit[data-idx="${idx + 1}"]`);
+        if (next) next.focus();
+      }
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !e.target.value) {
+        const idx = parseInt(e.target.dataset.idx);
+        const prev = document.querySelector(`.otp-digit[data-idx="${idx - 1}"]`);
+        if (prev) { prev.focus(); prev.value = ''; }
+      }
+    });
+    // Allow paste of full code
+    input.addEventListener('paste', (e) => {
+      const pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
+      if (pasted.length === 6 && /^\d+$/.test(pasted)) {
+        e.preventDefault();
+        document.querySelectorAll('.otp-digit').forEach((d, i) => { d.value = pasted[i] || ''; });
+        document.querySelector('.otp-digit[data-idx="5"]')?.focus();
+      }
+    });
+  });
+});
+
+// ---- Cart Communications Toggle (with OTP) ----
+let _cartOtpVerified = false;
+let _cartOtpEmail = '';
+
 function toggleCartCommunications() {
   const content = document.getElementById('cartComContent');
   if (!content) return;
@@ -545,7 +718,58 @@ async function loadCartCommunications() {
     return;
   }
 
-  result.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.75rem;padding:8px;">Cargando...</p>';
+  // If not verified, send OTP first
+  if (!_cartOtpVerified || _cartOtpEmail !== email) {
+    _cartOtpEmail = email;
+    result.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.75rem;padding:8px;">Enviando codigo...</p>';
+
+    try {
+      await enviarOTP(email);
+      result.innerHTML = `
+        <div style="text-align:center;padding:8px;">
+          <p style="color:var(--gris);font-size:0.78rem;margin-bottom:10px;">Codigo enviado a <strong>${email}</strong></p>
+          <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;">
+            <input type="text" maxlength="6" id="cartOtpCode" class="cart-input" placeholder="Codigo de 6 digitos" style="max-width:180px;text-align:center;letter-spacing:4px;font-size:1rem;margin:0;">
+          </div>
+          <button class="btn btn-primary" style="font-size:0.6rem;padding:8px 20px;" onclick="verifyCartOTP()">Verificar</button>
+          <p id="cartOtpError" style="color:#e74c3c;font-size:0.72rem;display:none;margin-top:6px;"></p>
+        </div>
+      `;
+    } catch (e) {
+      result.innerHTML = '<p style="text-align:center;color:#e74c3c;font-size:0.75rem;padding:8px;">Error al enviar codigo.</p>';
+    }
+    return;
+  }
+
+  // Already verified, load data
+  await _loadCartComData(email, result);
+}
+
+async function verifyCartOTP() {
+  const code = document.getElementById('cartOtpCode')?.value.trim();
+  const errorEl = document.getElementById('cartOtpError');
+  if (!code || code.length !== 6) {
+    if (errorEl) { errorEl.textContent = 'Ingresa los 6 digitos'; errorEl.style.display = 'block'; }
+    return;
+  }
+
+  try {
+    const result = await verificarOTP(_cartOtpEmail, code);
+    if (!result.valid) {
+      if (errorEl) { errorEl.textContent = result.error; errorEl.style.display = 'block'; }
+      return;
+    }
+
+    _cartOtpVerified = true;
+    const resultEl = document.getElementById('cartComResult');
+    await _loadCartComData(_cartOtpEmail, resultEl);
+  } catch (e) {
+    if (errorEl) { errorEl.textContent = 'Error al verificar'; errorEl.style.display = 'block'; }
+  }
+}
+
+async function _loadCartComData(email, resultEl) {
+  resultEl.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.75rem;padding:8px;">Cargando...</p>';
 
   try {
     const [pedidos, mensajes] = await Promise.all([
@@ -590,9 +814,9 @@ async function loadCartCommunications() {
       html = '<p style="text-align:center;color:var(--gris);font-size:0.75rem;padding:8px;">No hay comunicaciones con este correo.</p>';
     }
 
-    result.innerHTML = html;
+    resultEl.innerHTML = html;
   } catch (e) {
-    result.innerHTML = '<p style="text-align:center;color:#e74c3c;font-size:0.75rem;padding:8px;">Error al cargar.</p>';
+    resultEl.innerHTML = '<p style="text-align:center;color:#e74c3c;font-size:0.75rem;padding:8px;">Error al cargar.</p>';
   }
 }
 

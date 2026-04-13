@@ -1067,6 +1067,14 @@
               <strong>${t.nombre}</strong> — <span class="email-link" onclick="openEmailModal('${t.email}')">${t.email}</span>
             </div>
             <div class="soporte-card-msg">${t.mensaje}</div>
+            ${t.adjuntos && t.adjuntos.length > 0 ? `
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;">
+                ${t.adjuntos.map(a => a.type === 'video'
+                  ? `<a href="${a.url}" target="_blank" style="display:block;width:80px;height:80px;border-radius:8px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.6rem;text-align:center;text-decoration:none;">▶ Video<br>${a.name}</a>`
+                  : `<a href="${a.url}" target="_blank"><img src="${a.url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid rgba(0,0,0,0.1);" alt="${a.name}"></a>`
+                ).join('')}
+              </div>
+            ` : ''}
             ${t.respuesta ? `<div class="soporte-card-response"><strong>Tu respuesta:</strong><p>${t.respuesta}</p></div>` : ''}
             <div class="soporte-card-actions">
               ${t.estado !== 'respondido'
