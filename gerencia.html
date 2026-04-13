@@ -534,11 +534,11 @@
     }
     .dash-tab {
       flex: 1;
-      padding: 16px 24px;
+      padding: 14px 12px;
       font-family: var(--font-body);
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       font-weight: 600;
-      letter-spacing: 2px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       border: none;
       background: white;
@@ -573,78 +573,114 @@
 
     <!-- NAV TABS -->
     <div class="dash-tabs">
-      <button class="dash-tab active" onclick="switchTab('web', this)">Datos de Web</button>
-      <button class="dash-tab" onclick="switchTab('pedidos', this)">Pedidos</button>
+      <button class="dash-tab active" onclick="switchTab('pedidos', this)">Pedidos</button>
       <button class="dash-tab" onclick="switchTab('soporte', this)">Soporte</button>
+      <button class="dash-tab" onclick="switchTab('web', this)">Datos Web</button>
+      <button class="dash-tab" onclick="switchTab('bancarios', this)">Datos Bancarios</button>
+      <button class="dash-tab" onclick="switchTab('config', this)">Configuraciones</button>
     </div>
 
-    <!-- ========== TAB: DATOS DE WEB ========== -->
-    <div class="dash-panel active" id="panel-web">
+    <!-- ========== TAB 1: PEDIDOS ========== -->
+    <div class="dash-panel active" id="panel-pedidos">
+      <div class="dash-card" style="margin-bottom:20px;">
+        <h2>Pedidos (Base de Datos)</h2>
+        <div id="pedidosSupabase"><p style="color:var(--gris);font-size:0.8rem;">Cargando pedidos...</p></div>
+      </div>
+      <div class="dash-card">
+        <h2>Historial Local (Analytics)</h2>
+        <div id="pedidosTable"></div>
+      </div>
+    </div>
+
+    <!-- ========== TAB 2: SOPORTE ========== -->
+    <div class="dash-panel" id="panel-soporte">
+      <div class="dash-card">
+        <h2>Mensajes de Soporte</h2>
+        <div id="soporteTable"><p style="color:var(--gris);font-size:0.8rem;">Cargando mensajes...</p></div>
+      </div>
+    </div>
+
+    <!-- ========== TAB 3: DATOS WEB ========== -->
+    <div class="dash-panel" id="panel-web">
       <div class="kpi-grid" id="kpiGrid"></div>
 
       <div class="dash-grid">
         <div class="dash-card">
-          <h2>Cuentas e Ingresos</h2>
-          <div class="money-grid" id="moneyGrid"></div>
-        </div>
-        <div class="dash-card">
           <h2>Actividad por Hora</h2>
           <div class="hours-chart" id="hoursChart"></div>
         </div>
-      </div>
-
-      <div class="dash-grid">
         <div class="dash-card">
           <h2>Productos Más Agregados</h2>
           <div id="topProductos"></div>
         </div>
+      </div>
+
+      <div class="dash-grid">
         <div class="dash-card">
           <h2>Categorías Más Visitadas</h2>
           <div id="topCategorias"></div>
         </div>
-      </div>
-
-      <div class="dash-grid">
         <div class="dash-card">
           <h2>Páginas Más Visitadas</h2>
           <div id="topPaginas"></div>
         </div>
+      </div>
+
+      <div class="dash-grid">
         <div class="dash-card">
           <h2>Suscripciones Newsletter</h2>
           <div id="suscripcionesTable"></div>
         </div>
-      </div>
-
-      <div class="dash-grid">
-        <div class="dash-card dash-card-full">
+        <div class="dash-card">
           <h2>Últimas Visitas</h2>
           <div id="visitasTable"></div>
         </div>
       </div>
     </div>
 
-    <!-- ========== TAB: PEDIDOS ========== -->
-    <div class="dash-panel" id="panel-pedidos">
-      <div class="dash-grid">
-        <div class="dash-card dash-card-full">
-          <h2>Pedidos (Base de Datos)</h2>
-          <div id="pedidosSupabase"><p style="color:var(--gris);font-size:0.8rem;">Cargando pedidos...</p></div>
+    <!-- ========== TAB 4: DATOS BANCARIOS ========== -->
+    <div class="dash-panel" id="panel-bancarios">
+      <div class="dash-card" style="margin-bottom:20px;">
+        <h2>Resumen Financiero</h2>
+        <div class="money-grid" id="moneyGrid"></div>
+      </div>
+      <div class="dash-card" style="margin-bottom:20px;">
+        <h2>Detalle de Pagos</h2>
+        <div id="detallesPagos">
+          <div class="dash-empty">Los detalles de pagos se generan desde los pedidos registrados</div>
         </div>
       </div>
-      <div class="dash-grid">
-        <div class="dash-card dash-card-full">
-          <h2>Historial Local</h2>
-          <div id="pedidosTable"></div>
+      <div class="dash-card">
+        <h2>Información Bancaria</h2>
+        <div style="padding:16px 0;font-size:0.85rem;color:var(--negro-light);line-height:2;">
+          <p><strong>Cuenta de cobro:</strong> makeupdeabril@gmail.com</p>
+          <p><strong>Moneda:</strong> Lempiras (HNL)</p>
+          <p><strong>Método principal:</strong> Transferencia / Pago en persona</p>
+          <p><strong>Crédito ONE:</strong> 50% adelanto + 50% antes de entrega</p>
         </div>
       </div>
     </div>
 
-    <!-- ========== TAB: SOPORTE ========== -->
-    <div class="dash-panel" id="panel-soporte">
-      <div class="dash-grid">
-        <div class="dash-card dash-card-full">
-          <h2>Mensajes de Soporte</h2>
-          <div id="soporteTable"><p style="color:var(--gris);font-size:0.8rem;">Cargando mensajes...</p></div>
+    <!-- ========== TAB 5: CONFIGURACIONES ========== -->
+    <div class="dash-panel" id="panel-config">
+      <div class="dash-card" style="margin-bottom:20px;">
+        <h2>General</h2>
+        <div style="padding:16px 0;font-size:0.85rem;color:var(--negro-light);line-height:2.2;">
+          <p><strong>Nombre del negocio:</strong> A B R I L & O N E</p>
+          <p><strong>Correo de contacto:</strong> makeupdeabril@gmail.com</p>
+          <p><strong>Dominio:</strong> <a href="https://abril.makeup" target="_blank" style="color:var(--azul);">abril.makeup</a></p>
+          <p><strong>GitHub:</strong> <a href="https://github.com/Carlosarmas-1998/abril-and-one" target="_blank" style="color:var(--azul);">Carlosarmas-1998/abril-and-one</a></p>
+          <p><strong>Vercel:</strong> <a href="https://abril-and-one.vercel.app" target="_blank" style="color:var(--azul);">abril-and-one.vercel.app</a></p>
+          <p><strong>Base de datos:</strong> Supabase (foglmtspevcaxkwoqveb)</p>
+        </div>
+      </div>
+      <div class="dash-card" style="margin-bottom:20px;">
+        <h2>Acciones</h2>
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px 0;">
+          <button class="dash-btn dash-btn-email" onclick="openEmailModal()" style="width:fit-content;padding:12px 24px;">✉ Enviar Correo a Cliente</button>
+          <button class="dash-btn" onclick="location.href='index.html'" style="width:fit-content;padding:12px 24px;">Ir a la Web</button>
+          <button class="dash-btn" onclick="refreshDash()" style="width:fit-content;padding:12px 24px;">Actualizar Datos</button>
+          <button class="dash-btn dash-btn-danger" onclick="if(confirm('¿Borrar todos los datos de analytics locales?')){AO_ANALYTICS.resetDB();refreshDash();}" style="width:fit-content;padding:12px 24px;">Resetear Analytics</button>
         </div>
       </div>
     </div>
