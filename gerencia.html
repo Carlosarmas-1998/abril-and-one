@@ -1004,7 +1004,7 @@
                 <strong>${p.pedido_id}</strong>
                 <span style="font-size:0.72rem;color:var(--gris-light);margin-left:8px;">${new Date(p.created_at).toLocaleDateString('es-HN')}</span>
               </div>
-              <select class="estado-select" style="background:${ESTADO_COLORS[p.estado] || '#999'}" onclick="event.stopPropagation()" onchange="cambiarEstado('${p.id}', this.value, this)">
+              <select class="estado-select" style="background:${ESTADO_COLORS[p.estado] || '#999'}" onclick="event.stopPropagation()" onchange="cambiarEstado('${p.id}', this.value, this, '${(c.email||'').replace(/'/g,'')}', '${(c.nombre||'').replace(/'/g,'')}', '${p.pedido_id}', ${p.es_credito ? 'true' : 'false'}, ${Number(p.pago_pendiente) || 0})">
                 ${ESTADO_OPTIONS.map(e => `<option value="${e}" ${p.estado === e ? 'selected' : ''}>${e.charAt(0).toUpperCase() + e.slice(1)}</option>`).join('')}
               </select>
             </div>
@@ -1036,11 +1036,27 @@
       if (detail) detail.classList.toggle('show');
     }
 
-    async function cambiarEstado(pedidoId, nuevoEstado, selectEl) {
+    async function cambiarEstado(pedidoId, nuevoEstado, selectEl, email, nombre, pedidoCode, esCredito, pagoPendiente) {
       selectEl.disabled = true;
       try {
         await actualizarEstadoPedido(pedidoId, nuevoEstado);
         selectEl.style.background = ESTADO_COLORS[nuevoEstado] || '#999';
+
+        // Send email notification to customer
+        if (email) {
+          try {
+            await fetch(`${SUPABASE_URL}/functions/v1/notify-customer`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'status_change',
+                email: email,
+                nombre: nombre,
+                data: { estado: nuevoEstado, pedido_id: pedidoCode, es_credito: esCredito, pago_pendiente: pagoPendiente }
+              })
+            });
+          } catch(emailErr) { console.warn('No se pudo enviar notificacion:', emailErr); }
+        }
       } catch(e) { alert('Error al cambiar estado'); }
       selectEl.disabled = false;
     }
@@ -1078,7 +1094,7 @@
             ${t.respuesta ? `<div class="soporte-card-response"><strong>Tu respuesta:</strong><p>${t.respuesta}</p></div>` : ''}
             <div class="soporte-card-actions">
               ${t.estado !== 'respondido'
-                ? `<button class="btn-responder" onclick="responderTicket('${t.id}','${t.email}','${t.nombre}')">Responder</button>`
+                ? `<button class="btn-responder" onclick="responderTicket('${t.id}','${t.email}','${t.nombre}','${(t.asunto||'').replace(/'/g,'')}')">Responder</button>`
                 : ''
               }
               <button class="btn-contactar" onclick="openEmailModal('${t.email}')">✉ Contactar por correo</button>
@@ -1090,11 +1106,26 @@
       }
     }
 
-    function responderTicket(ticketId, email, nombre) {
+    function responderTicket(ticketId, email, nombre, asunto) {
       const respuesta = prompt('Escribe tu respuesta para ' + nombre + ' (' + email + '):');
       if (!respuesta || !respuesta.trim()) return;
-      responderSoporte(ticketId, respuesta.trim()).then(() => {
-        alert('Respuesta enviada. El cliente la verá en "Mis Comunicaciones".');
+      responderSoporte(ticketId, respuesta.trim()).then(async () => {
+        // Send email notification to customer
+        try {
+          await fetch(`${SUPABASE_URL}/functions/v1/notify-customer`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'support_response',
+              email: email,
+              nombre: nombre,
+              data: { asunto: asunto, respuesta: respuesta.trim() }
+            })
+          });
+          alert('Respuesta enviada y notificacion por correo enviada al cliente.');
+        } catch(emailErr) {
+          alert('Respuesta guardada pero no se pudo enviar el correo.');
+        }
         loadSoporte();
       }).catch(() => alert('Error al responder.'));
     }
