@@ -530,6 +530,72 @@ async function cargarComunicaciones() {
   }
 }
 
+// ---- Cart Communications Toggle ----
+function toggleCartCommunications() {
+  const content = document.getElementById('cartComContent');
+  if (!content) return;
+  content.classList.toggle('show');
+}
+
+async function loadCartCommunications() {
+  const email = document.getElementById('comEmailCart')?.value.trim();
+  const result = document.getElementById('cartComResult');
+  if (!email || !email.includes('@') || !result) {
+    alert('Ingresa tu correo electrónico.');
+    return;
+  }
+
+  result.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.75rem;padding:8px;">Cargando...</p>';
+
+  try {
+    const [pedidos, mensajes] = await Promise.all([
+      typeof fetchPedidosPorEmail === 'function' ? fetchPedidosPorEmail(email) : [],
+      typeof fetchMisComunicaciones === 'function' ? fetchMisComunicaciones(email) : []
+    ]);
+
+    let html = '';
+
+    if (pedidos.length > 0) {
+      html += '<p class="cart-form-label" style="margin:8px 0 6px;">Mis Pedidos</p>';
+      html += pedidos.map(p => `
+        <div class="history-order">
+          <div class="history-order-header">
+            <strong>${p.pedido_id}</strong>
+            <span class="history-status" style="background:${ESTADO_COLORS[p.estado] || '#999'}">${p.estado.toUpperCase()}</span>
+          </div>
+          <div class="history-order-details">
+            <span>L. ${Number(p.total).toLocaleString('es-HN')}</span>
+            ${p.descuento > 0 ? '<span style="color:#16a34a;">(-10%)</span>' : ''}
+          </div>
+          <div class="history-order-date">${new Date(p.created_at).toLocaleDateString('es-HN')}</div>
+        </div>
+      `).join('');
+    }
+
+    if (mensajes.length > 0) {
+      html += '<p class="cart-form-label" style="margin:8px 0 6px;">Mis Mensajes</p>';
+      html += mensajes.map(m => `
+        <div class="history-order">
+          <div class="history-order-header">
+            <strong>${m.asunto}</strong>
+            <span class="history-status" style="background:${m.estado === 'respondido' ? '#27ae60' : '#f39c12'}">${m.estado === 'respondido' ? 'RESPONDIDO' : 'PENDIENTE'}</span>
+          </div>
+          ${m.respuesta ? '<div style="background:#f0fdf4;padding:6px 8px;border-radius:6px;margin-top:4px;font-size:0.72rem;color:#166534;"><strong>R:</strong> ' + m.respuesta + '</div>' : ''}
+          <div class="history-order-date">${new Date(m.created_at).toLocaleDateString('es-HN')}</div>
+        </div>
+      `).join('');
+    }
+
+    if (!html) {
+      html = '<p style="text-align:center;color:var(--gris);font-size:0.75rem;padding:8px;">No hay comunicaciones con este correo.</p>';
+    }
+
+    result.innerHTML = html;
+  } catch (e) {
+    result.innerHTML = '<p style="text-align:center;color:#e74c3c;font-size:0.75rem;padding:8px;">Error al cargar.</p>';
+  }
+}
+
 // ---- Global scroll reveal function ----
 function initScrollReveal() {
   const observer = new IntersectionObserver((entries) => {

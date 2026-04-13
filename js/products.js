@@ -35,6 +35,12 @@ const CREANDO_CATS = {
     subtitulo: "El trazo que define quién eres",
     desc: "Precisión milimétrica. Fórmula waterproof de larga duración. Un solo trazo para transformar tu mirada en algo inolvidable. Estamos perfeccionando cada molécula porque tu mirada merece exactitud absoluta.",
     icono: "— III —"
+  },
+  accesorios: {
+    titulo: "Accesorios",
+    subtitulo: "Los detalles que completan tu ritual",
+    desc: "Sacadores de cejas, encrespadores de pestañas, coletas elegantes y herramientas esenciales que elevan cada paso de tu rutina de belleza. Cada accesorio está siendo seleccionado con el mismo estándar de calidad premium que define a A B R I L & O N E.",
+    icono: "— IV —"
   }
 };
 
@@ -281,7 +287,8 @@ const CAT_NAMES = {
   labiales: 'Labiales',
   rimel: 'Rímel',
   sombras: 'Sombras',
-  delineadores: 'Delineadores'
+  delineadores: 'Delineadores',
+  accesorios: 'Accesorios'
 };
 
 function showCategory(cat, e) {
