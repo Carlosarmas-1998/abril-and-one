@@ -522,6 +522,38 @@
       line-height: 1.8;
     }
     .pedido-card-detail.show { display: block; }
+
+    /* NAV TABS */
+    .dash-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 28px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .dash-tab {
+      flex: 1;
+      padding: 16px 24px;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: none;
+      background: white;
+      color: var(--gris);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dash-tab:not(:last-child) { border-right: 1px solid rgba(0,0,0,0.06); }
+    .dash-tab:hover { background: #f8f5f0; color: var(--negro); }
+    .dash-tab.active {
+      background: var(--negro);
+      color: var(--marfil);
+    }
+    .dash-panel { display: none; }
+    .dash-panel.active { display: block; }
   </style>
 </head>
 <body>
@@ -539,76 +571,81 @@
 
   <main class="dash-main">
 
-    <!-- KPIs -->
-    <div class="kpi-grid" id="kpiGrid"></div>
+    <!-- NAV TABS -->
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="switchTab('web', this)">Datos de Web</button>
+      <button class="dash-tab" onclick="switchTab('pedidos', this)">Pedidos</button>
+      <button class="dash-tab" onclick="switchTab('soporte', this)">Soporte</button>
+    </div>
 
-    <!-- INGRESOS / CUENTAS -->
-    <div class="dash-grid">
-      <div class="dash-card">
-        <h2>Cuentas e Ingresos</h2>
-        <div class="money-grid" id="moneyGrid"></div>
-        <div id="pedidosPorMetodo"></div>
+    <!-- ========== TAB: DATOS DE WEB ========== -->
+    <div class="dash-panel active" id="panel-web">
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="dash-grid">
+        <div class="dash-card">
+          <h2>Cuentas e Ingresos</h2>
+          <div class="money-grid" id="moneyGrid"></div>
+        </div>
+        <div class="dash-card">
+          <h2>Actividad por Hora</h2>
+          <div class="hours-chart" id="hoursChart"></div>
+        </div>
       </div>
-      <div class="dash-card">
-        <h2>Actividad por Hora</h2>
-        <div class="hours-chart" id="hoursChart"></div>
-        <div style="height: 24px;"></div>
+
+      <div class="dash-grid">
+        <div class="dash-card">
+          <h2>Productos Más Agregados</h2>
+          <div id="topProductos"></div>
+        </div>
+        <div class="dash-card">
+          <h2>Categorías Más Visitadas</h2>
+          <div id="topCategorias"></div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-card">
+          <h2>Páginas Más Visitadas</h2>
+          <div id="topPaginas"></div>
+        </div>
+        <div class="dash-card">
+          <h2>Suscripciones Newsletter</h2>
+          <div id="suscripcionesTable"></div>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="dash-card dash-card-full">
+          <h2>Últimas Visitas</h2>
+          <div id="visitasTable"></div>
+        </div>
       </div>
     </div>
 
-    <!-- PRODUCTOS & CATEGORÍAS -->
-    <div class="dash-grid">
-      <div class="dash-card">
-        <h2>Productos Más Agregados al Carrito</h2>
-        <div id="topProductos"></div>
+    <!-- ========== TAB: PEDIDOS ========== -->
+    <div class="dash-panel" id="panel-pedidos">
+      <div class="dash-grid">
+        <div class="dash-card dash-card-full">
+          <h2>Pedidos (Base de Datos)</h2>
+          <div id="pedidosSupabase"><p style="color:var(--gris);font-size:0.8rem;">Cargando pedidos...</p></div>
+        </div>
       </div>
-      <div class="dash-card">
-        <h2>Categorías Más Visitadas</h2>
-        <div id="topCategorias"></div>
-      </div>
-    </div>
-
-    <!-- PÁGINAS VISITADAS & SUSCRIPCIONES -->
-    <div class="dash-grid">
-      <div class="dash-card">
-        <h2>Páginas Más Visitadas</h2>
-        <div id="topPaginas"></div>
-      </div>
-      <div class="dash-card">
-        <h2>Suscripciones al Newsletter</h2>
-        <div id="suscripcionesTable"></div>
+      <div class="dash-grid">
+        <div class="dash-card dash-card-full">
+          <h2>Historial Local</h2>
+          <div id="pedidosTable"></div>
+        </div>
       </div>
     </div>
 
-    <!-- PEDIDOS (SUPABASE) -->
-    <div class="dash-grid">
-      <div class="dash-card dash-card-full">
-        <h2>Pedidos en Base de Datos</h2>
-        <div id="pedidosSupabase"><p style="color:var(--gris);font-size:0.8rem;">Cargando pedidos...</p></div>
-      </div>
-    </div>
-
-    <!-- PEDIDOS LOCALES -->
-    <div class="dash-grid">
-      <div class="dash-card dash-card-full">
-        <h2>Historial Local (Analytics)</h2>
-        <div id="pedidosTable"></div>
-      </div>
-    </div>
-
-    <!-- SOPORTE / COMUNICACIONES -->
-    <div class="dash-grid">
-      <div class="dash-card dash-card-full">
-        <h2>Soporte y Comunicaciones</h2>
-        <div id="soporteTable"><p style="color:var(--gris);font-size:0.8rem;">Cargando mensajes de soporte...</p></div>
-      </div>
-    </div>
-
-    <!-- ÚLTIMAS VISITAS -->
-    <div class="dash-grid">
-      <div class="dash-card dash-card-full">
-        <h2>Últimas Visitas</h2>
-        <div id="visitasTable"></div>
+    <!-- ========== TAB: SOPORTE ========== -->
+    <div class="dash-panel" id="panel-soporte">
+      <div class="dash-grid">
+        <div class="dash-card dash-card-full">
+          <h2>Mensajes de Soporte</h2>
+          <div id="soporteTable"><p style="color:var(--gris);font-size:0.8rem;">Cargando mensajes...</p></div>
+        </div>
       </div>
     </div>
 
@@ -1013,6 +1050,14 @@
         alert('Respuesta enviada. El cliente la verá en "Mis Comunicaciones".');
         loadSoporte();
       }).catch(() => alert('Error al responder.'));
+    }
+
+    // Tab switching
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('panel-' + tab)?.classList.add('active');
+      btn.classList.add('active');
     }
 
     // Collapsible sections
