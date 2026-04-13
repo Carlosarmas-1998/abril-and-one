@@ -70,14 +70,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ---- Contact form ----
+  // ---- Contact form → Supabase ----
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      contactForm.style.display = 'none';
-      const success = document.querySelector('.form-success');
-      if (success) success.classList.add('show');
+      const nombre = document.getElementById('nombre')?.value.trim();
+      const email = document.getElementById('email')?.value.trim();
+      const asunto = document.getElementById('asunto')?.value;
+      const mensaje = document.getElementById('mensaje')?.value.trim();
+
+      if (!nombre || !email || !asunto || !mensaje) return;
+
+      const btn = contactForm.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      try {
+        if (typeof enviarMensajeSoporte === 'function') {
+          await enviarMensajeSoporte(nombre, email, asunto, mensaje);
+        }
+        contactForm.style.display = 'none';
+        const success = document.querySelector('.form-success');
+        if (success) success.classList.add('show');
+      } catch(err) {
+        alert('Error al enviar. Intenta de nuevo.');
+        btn.disabled = false;
+        btn.textContent = 'Enviar Mensaje';
+      }
     });
   }
 
@@ -388,6 +408,73 @@ async function showOrderHistory() {
       `).join('');
   } catch (e) {
     historyEl.innerHTML = '<p style="text-align:center;color:var(--rojo,#e74c3c);font-size:0.8rem;padding:16px;">Error al cargar pedidos.</p>';
+  }
+}
+
+// ---- Mis Comunicaciones (contacto page) ----
+async function cargarComunicaciones() {
+  const email = document.getElementById('comEmail')?.value.trim();
+  const container = document.getElementById('comunicacionesResult');
+  if (!email || !email.includes('@') || !container) {
+    alert('Ingresa tu correo electrónico.');
+    return;
+  }
+
+  container.innerHTML = '<p style="text-align:center;color:var(--gris);font-size:0.8rem;">Cargando...</p>';
+
+  try {
+    // Fetch both support messages AND orders
+    const [mensajes, pedidos] = await Promise.all([
+      fetchMisComunicaciones(email),
+      fetchPedidosPorEmail(email)
+    ]);
+
+    let html = '';
+
+    // Orders section
+    if (pedidos.length > 0) {
+      html += '<h3 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:12px;">Mis Pedidos</h3>';
+      html += pedidos.map(p => `
+        <div class="com-card">
+          <div class="com-card-header">
+            <strong>${p.pedido_id}</strong>
+            <span class="com-status" style="background:${ESTADO_COLORS[p.estado] || '#999'}">${p.estado.toUpperCase()}</span>
+          </div>
+          <div class="com-card-body">
+            <span>Total: <strong>L. ${Number(p.total).toLocaleString('es-HN')}</strong></span>
+            ${p.descuento > 0 ? '<span style="color:#16a34a;"> (10% desc. aplicado)</span>' : ''}
+            <span style="color:var(--gris-light);font-size:0.75rem;"> — ${new Date(p.created_at).toLocaleDateString('es-HN')}</span>
+          </div>
+          ${p.es_credito ? `<div class="com-card-credit">Crédito ONE — Pago inicial: L. ${Number(p.pago_inicial).toLocaleString('es-HN')} | Pendiente: L. ${Number(p.pago_pendiente).toLocaleString('es-HN')}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Support messages section
+    if (mensajes.length > 0) {
+      html += '<h3 style="font-family:var(--font-display);font-size:1.3rem;margin:24px 0 12px;">Mis Mensajes</h3>';
+      html += mensajes.map(m => `
+        <div class="com-card">
+          <div class="com-card-header">
+            <strong>${m.asunto}</strong>
+            <span class="com-status" style="background:${m.estado === 'respondido' ? '#27ae60' : '#f39c12'}">${m.estado === 'respondido' ? 'RESPONDIDO' : 'PENDIENTE'}</span>
+          </div>
+          <div class="com-card-body">
+            <p style="color:var(--gris);font-size:0.83rem;">${m.mensaje}</p>
+          </div>
+          ${m.respuesta ? `<div class="com-card-response"><strong>Respuesta de A B R I L & O N E:</strong><p>${m.respuesta}</p></div>` : ''}
+          <div style="font-size:0.7rem;color:var(--gris-light);margin-top:6px;">${new Date(m.created_at).toLocaleDateString('es-HN')}</div>
+        </div>
+      `).join('');
+    }
+
+    if (!html) {
+      html = '<p style="text-align:center;color:var(--gris);font-size:0.85rem;">No encontramos comunicaciones con este correo.</p>';
+    }
+
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = '<p style="text-align:center;color:#e74c3c;font-size:0.85rem;">Error al cargar. Intenta de nuevo.</p>';
   }
 }
 

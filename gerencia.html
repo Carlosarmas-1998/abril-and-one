@@ -480,6 +480,14 @@
       </div>
     </div>
 
+    <!-- SOPORTE / COMUNICACIONES -->
+    <div class="dash-grid">
+      <div class="dash-card dash-card-full">
+        <h2>Soporte y Comunicaciones</h2>
+        <div id="soporteTable"><p style="color:var(--gris);font-size:0.8rem;">Cargando mensajes de soporte...</p></div>
+      </div>
+    </div>
+
     <!-- ÚLTIMAS VISITAS -->
     <div class="dash-grid">
       <div class="dash-card dash-card-full">
@@ -863,11 +871,56 @@
       row.after(detailRow);
     }
 
+    // ---- SOPORTE ----
+    async function loadSoporte() {
+      const container = document.getElementById('soporteTable');
+      try {
+        const tickets = await fetchTodosSoporte();
+        if (tickets.length === 0) {
+          container.innerHTML = '<div class="dash-empty">Sin mensajes de soporte</div>';
+          return;
+        }
+        container.innerHTML = `<table class="dash-table">
+          <thead><tr><th>Fecha</th><th>Nombre</th><th>Email</th><th>Asunto</th><th>Mensaje</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>${tickets.map(t => `
+            <tr>
+              <td style="font-size:0.75rem;">${new Date(t.created_at).toLocaleDateString('es-HN')}</td>
+              <td>${t.nombre}</td>
+              <td><span class="email-link" onclick="openEmailModal('${t.email}')">${t.email}</span></td>
+              <td><strong>${t.asunto}</strong></td>
+              <td style="max-width:200px;font-size:0.8rem;color:var(--gris);">${t.mensaje.substring(0, 100)}${t.mensaje.length > 100 ? '...' : ''}</td>
+              <td><span class="badge ${t.estado === 'respondido' ? 'badge-green' : 'badge-yellow'}">${t.estado}</span></td>
+              <td>
+                ${t.estado !== 'respondido'
+                  ? `<button class="dash-btn" style="font-size:0.6rem;padding:5px 10px;" onclick="responderTicket('${t.id}','${t.email}','${t.nombre}')">Responder</button>`
+                  : `<span style="font-size:0.72rem;color:var(--verde);">Respondido</span>`
+                }
+              </td>
+            </tr>
+            ${t.respuesta ? `<tr><td colspan="7" style="background:#f0fdf4;padding:10px 16px;font-size:0.8rem;color:#166534;"><strong>Respuesta:</strong> ${t.respuesta}</td></tr>` : ''}
+          `).join('')}</tbody>
+        </table>`;
+      } catch(e) {
+        container.innerHTML = '<div class="dash-empty" style="color:var(--rojo);">Error al cargar soporte</div>';
+      }
+    }
+
+    function responderTicket(ticketId, email, nombre) {
+      const respuesta = prompt('Escribe tu respuesta para ' + nombre + ' (' + email + '):');
+      if (!respuesta || !respuesta.trim()) return;
+      responderSoporte(ticketId, respuesta.trim()).then(() => {
+        alert('Respuesta enviada. El cliente la verá en "Mis Comunicaciones".');
+        loadSoporte();
+      }).catch(() => alert('Error al responder.'));
+    }
+
     // Init
     refreshDash();
     loadPedidosSupabase();
+    loadSoporte();
     setInterval(refreshDash, 30000);
     setInterval(loadPedidosSupabase, 30000);
+    setInterval(loadSoporte, 30000);
   </script>
 </body>
 </html>

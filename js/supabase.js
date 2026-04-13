@@ -87,3 +87,40 @@ async function actualizarEstadoPedido(pedidoId, nuevoEstado) {
     body: JSON.stringify({ estado: nuevoEstado })
   });
 }
+
+// ---- SOPORTE / COMUNICACIONES ----
+
+// Send a support message
+async function enviarMensajeSoporte(nombre, email, asunto, mensaje) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/abril_soporte`, {
+    method: 'POST',
+    headers: supabaseHeaders,
+    body: JSON.stringify({ nombre, email, asunto, mensaje, estado: 'nuevo' })
+  });
+  return await res.json();
+}
+
+// Fetch messages by email (for client)
+async function fetchMisComunicaciones(email) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/abril_soporte?email=eq.${encodeURIComponent(email)}&order=created_at.desc`, {
+    headers: supabaseHeaders
+  });
+  return await res.json();
+}
+
+// Fetch all support messages (for gerencia)
+async function fetchTodosSoporte() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/abril_soporte?order=created_at.desc`, {
+    headers: supabaseHeaders
+  });
+  return await res.json();
+}
+
+// Respond to a support message (from gerencia)
+async function responderSoporte(ticketId, respuesta) {
+  await fetch(`${SUPABASE_URL}/rest/v1/abril_soporte?id=eq.${ticketId}`, {
+    method: 'PATCH',
+    headers: supabaseHeaders,
+    body: JSON.stringify({ respuesta, estado: 'respondido', respondido_at: new Date().toISOString() })
+  });
+}
