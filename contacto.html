@@ -141,6 +141,17 @@
     </div>
   </section>
 
+  <!-- CREANDO SECTION -->
+  <section class="creando-section">
+    <div class="creando-bg"><div class="creando-particle"></div><div class="creando-particle"></div><div class="creando-particle"></div><div class="creando-particle"></div><div class="creando-particle"></div></div>
+    <div class="container creando-content">
+      <p class="creando-label">En Movimiento</p>
+      <h2 class="creando-title">Maquillaje Dinámico<br><span>Creando</span></h2>
+      <p class="creando-desc">Estamos diseñando nuevas experiencias de belleza. Cada textura, cada tono, cada acabado — cuidadosamente creado para redefinir tu estilo.</p>
+      <div class="creando-indicators"><div class="creando-dot"></div><div class="creando-dot"></div><div class="creando-dot"></div></div>
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-accent"></div>
@@ -194,6 +205,8 @@
     <div class="cart-footer" id="cartFooter">
       <div class="cart-subtotal"><span>Subtotal</span><span id="cartSubtotal">L. 0</span></div>
       <div class="cart-credit-option"><label class="credit-toggle"><input type="checkbox" id="creditOneToggle"><span class="credit-toggle-slider"></span><span class="credit-toggle-label">Crédito ONE</span></label><p class="credit-desc">Paga 50% al hacer tu pedido y 50% 24h antes de recibir</p><div class="credit-breakdown" id="creditBreakdown"><div class="credit-row"><span>Ahora</span><span id="creditNow">L. 0</span></div><div class="credit-row"><span>24h antes de recibir</span><span id="creditLater">L. 0</span></div></div></div>
+      <div class="cart-cliente-form" id="cartClienteForm"><p class="cart-form-label">Tus datos para el pedido</p><input type="text" id="clienteNombre" class="cart-input" placeholder="Tu nombre" required><input type="email" id="clienteEmail" class="cart-input" placeholder="Tu correo electrónico" required><div class="cart-discount-badge" id="discountBadge" style="display:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg><span>10% de descuento en tu primer pedido</span></div></div>
+      <div class="cart-discount-row" id="discountRow" style="display:none;"><span>Descuento 10%</span><span id="cartDiscount">- L. 0</span></div>
       <div class="cart-total"><span>Total</span><span id="cartTotal">L. 0</span></div>
       <label class="policy-accept"><input type="checkbox" id="policyAccept"><span class="policy-accept-check"></span><span class="policy-accept-text">He leído y acepto las <a href="politicas.html" target="_blank">políticas de empresa</a></span></label>
       <button class="btn btn-primary cart-checkout-btn" id="checkoutBtn" style="width:100%;text-align:center;" disabled>Finalizar Compra</button>
@@ -201,6 +214,7 @@
   </aside>
 
   <script src="js/analytics.js"></script>
+  <script src="js/supabase.js"></script>
   <script src="js/products.js"></script>
   <script src="js/main.js"></script>
 </body>

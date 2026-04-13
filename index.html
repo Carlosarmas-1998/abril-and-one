@@ -177,6 +177,27 @@
     </div>
   </section>
 
+  <!-- ========== CREANDO SECTION ========== -->
+  <section class="creando-section">
+    <div class="creando-bg">
+      <div class="creando-particle"></div>
+      <div class="creando-particle"></div>
+      <div class="creando-particle"></div>
+      <div class="creando-particle"></div>
+      <div class="creando-particle"></div>
+    </div>
+    <div class="container creando-content">
+      <p class="creando-label">En Movimiento</p>
+      <h2 class="creando-title">Maquillaje Dinámico<br><span>Creando</span></h2>
+      <p class="creando-desc">Estamos diseñando nuevas experiencias de belleza. Cada textura, cada tono, cada acabado — cuidadosamente creado para redefinir tu estilo.</p>
+      <div class="creando-indicators">
+        <div class="creando-dot"></div>
+        <div class="creando-dot"></div>
+        <div class="creando-dot"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ========== FOOTER ========== -->
   <footer class="footer">
     <div class="footer-accent"></div>
@@ -267,6 +288,19 @@
           </div>
         </div>
       </div>
+      <div class="cart-cliente-form" id="cartClienteForm">
+        <p class="cart-form-label">Tus datos para el pedido</p>
+        <input type="text" id="clienteNombre" class="cart-input" placeholder="Tu nombre" required>
+        <input type="email" id="clienteEmail" class="cart-input" placeholder="Tu correo electrónico" required>
+        <div class="cart-discount-badge" id="discountBadge" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          <span>10% de descuento en tu primer pedido</span>
+        </div>
+      </div>
+      <div class="cart-discount-row" id="discountRow" style="display:none;">
+        <span>Descuento 10%</span>
+        <span id="cartDiscount">- L. 0</span>
+      </div>
       <div class="cart-total">
         <span>Total</span>
         <span id="cartTotal">L. 0</span>
@@ -281,6 +315,7 @@
   </aside>
 
   <script src="js/analytics.js"></script>
+  <script src="js/supabase.js"></script>
   <script src="js/products.js"></script>
   <script src="js/main.js"></script>
 </body>

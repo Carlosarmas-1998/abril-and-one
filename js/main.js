@@ -110,33 +110,124 @@ document.addEventListener('DOMContentLoaded', () => {
   // Policy accept checkbox
   const policyAccept = document.getElementById('policyAccept');
   const checkoutBtn = document.getElementById('checkoutBtn');
+
+  // Email discount check
+  const clienteEmail = document.getElementById('clienteEmail');
+  let discountApplied = false;
+  let emailTimeout = null;
+
+  if (clienteEmail) {
+    clienteEmail.addEventListener('input', () => {
+      clearTimeout(emailTimeout);
+      emailTimeout = setTimeout(async () => {
+        const email = clienteEmail.value.trim();
+        if (!email || !email.includes('@')) return;
+        try {
+          const result = await checkClienteNuevo(email);
+          const badge = document.getElementById('discountBadge');
+          const discountRow = document.getElementById('discountRow');
+          if (result.esNuevo) {
+            discountApplied = true;
+            if (badge) badge.style.display = 'flex';
+            if (discountRow) discountRow.style.display = 'flex';
+          } else {
+            discountApplied = false;
+            if (badge) badge.style.display = 'none';
+            if (discountRow) discountRow.style.display = 'none';
+          }
+          updateCartTotals();
+        } catch(e) { /* silently fail */ }
+      }, 600);
+    });
+  }
+
   if (policyAccept && checkoutBtn) {
     policyAccept.addEventListener('change', () => {
       checkoutBtn.disabled = !policyAccept.checked;
     });
-    checkoutBtn.addEventListener('click', () => {
+    checkoutBtn.addEventListener('click', async () => {
       const cart = JSON.parse(localStorage.getItem('abrilone_cart') || '[]');
       if (cart.length === 0) return;
+
+      const nombre = document.getElementById('clienteNombre')?.value.trim();
+      const email = document.getElementById('clienteEmail')?.value.trim();
+      if (!nombre || !email || !email.includes('@')) {
+        alert('Por favor ingresa tu nombre y correo electrónico.');
+        return;
+      }
+
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = 'Procesando...';
+
       const esCredito = creditToggle && creditToggle.checked;
-      let total = 0;
+      let subtotal = 0;
       const productos = [];
       cart.forEach(id => {
         const p = PRODUCTS.find(pr => pr.id === id);
         if (p) {
-          total += p.precio;
+          subtotal += p.precio;
           if (!productos.find(x => x.id === p.id)) productos.push({ id: p.id, nombre: p.nombre });
         }
       });
-      if (typeof AO_ANALYTICS !== 'undefined') {
-        const pedidoId = AO_ANALYTICS.registrarPedido(productos, total, esCredito);
+
+      const descuento = discountApplied ? Math.round(subtotal * 0.10) : 0;
+      const total = subtotal - descuento;
+
+      try {
+        // Save client to DB
+        const cliente = await getOrCreateCliente(nombre, email);
+
+        // Generate order ID
+        const pedidoId = 'PED-' + Date.now();
+
+        // Save order to DB
+        await guardarPedido({
+          pedido_id: pedidoId,
+          cliente_id: cliente.clienteId,
+          productos: productos,
+          subtotal: subtotal,
+          descuento: descuento,
+          total: total,
+          es_credito: esCredito,
+          pago_inicial: esCredito ? Math.ceil(total / 2) : total,
+          pago_pendiente: esCredito ? total - Math.ceil(total / 2) : 0,
+          estado: 'pendiente'
+        });
+
+        // Mark client as no longer new
+        if (discountApplied && cliente.clienteId) {
+          await marcarClienteNoNuevo(cliente.clienteId);
+        }
+
+        // Analytics
+        if (typeof AO_ANALYTICS !== 'undefined') {
+          AO_ANALYTICS.registrarPedido(productos, total, esCredito);
+        }
+
         localStorage.removeItem('abrilone_cart');
         updateCartCount();
-        alert('¡Pedido ' + pedidoId + ' realizado con éxito!\n\n' +
-          (esCredito ? 'Pago inicial: L. ' + Math.ceil(total/2) + '\nPendiente 24h antes: L. ' + (total - Math.ceil(total/2)) : 'Total pagado: L. ' + total) +
-          '\n\nTe contactaremos por correo para coordinar la entrega.');
+
+        let msg = '¡Pedido ' + pedidoId + ' realizado con éxito!\n\n';
+        if (descuento > 0) msg += '¡Se aplicó 10% de descuento por ser tu primera compra!\n';
+        msg += esCredito
+          ? 'Pago inicial: L. ' + Math.ceil(total / 2) + '\nPendiente 24h antes: L. ' + (total - Math.ceil(total / 2))
+          : 'Total: L. ' + total;
+        msg += '\n\nTe contactaremos a ' + email + ' para coordinar la entrega.';
+
+        alert(msg);
         closeCart();
         policyAccept.checked = false;
         checkoutBtn.disabled = true;
+        checkoutBtn.textContent = 'Finalizar Compra';
+        document.getElementById('clienteNombre').value = '';
+        document.getElementById('clienteEmail').value = '';
+        discountApplied = false;
+        document.getElementById('discountBadge').style.display = 'none';
+        document.getElementById('discountRow').style.display = 'none';
+      } catch (err) {
+        alert('Hubo un error al procesar tu pedido. Intenta de nuevo.');
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Finalizar Compra';
       }
     });
   }
@@ -218,18 +309,26 @@ function updateCartTotals() {
     if (product) subtotal += product.precio;
   });
 
+  // Check if discount badge is visible (discount applied)
+  const discountBadge = document.getElementById('discountBadge');
+  const hasDiscount = discountBadge && discountBadge.style.display !== 'none';
+  const descuento = hasDiscount ? Math.round(subtotal * 0.10) : 0;
+  const total = subtotal - descuento;
+
   const subtotalEl = document.getElementById('cartSubtotal');
   const totalEl = document.getElementById('cartTotal');
+  const discountEl = document.getElementById('cartDiscount');
   const creditNow = document.getElementById('creditNow');
   const creditLater = document.getElementById('creditLater');
   const creditToggle = document.getElementById('creditOneToggle');
 
   if (subtotalEl) subtotalEl.textContent = 'L. ' + subtotal.toLocaleString('es-HN');
-  if (totalEl) totalEl.textContent = 'L. ' + subtotal.toLocaleString('es-HN');
+  if (discountEl) discountEl.textContent = '- L. ' + descuento.toLocaleString('es-HN');
+  if (totalEl) totalEl.textContent = 'L. ' + total.toLocaleString('es-HN');
 
   if (creditToggle && creditToggle.checked) {
-    const half = Math.ceil(subtotal / 2);
-    const otherHalf = subtotal - half;
+    const half = Math.ceil(total / 2);
+    const otherHalf = total - half;
     if (creditNow) creditNow.textContent = 'L. ' + half.toLocaleString('es-HN');
     if (creditLater) creditLater.textContent = 'L. ' + otherHalf.toLocaleString('es-HN');
   }
