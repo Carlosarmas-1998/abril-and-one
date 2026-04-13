@@ -3,167 +3,54 @@
    ============================================ */
 
 const PRODUCTS = [
-  // LABIALES
   {
     id: 1,
-    nombre: "Rouge Eternel",
+    nombre: "Velvet Rose Matte",
     categoria: "labiales",
-    precio: 489,
-    descripcion: "Labial mate de larga duración con acabado aterciopelado.",
-    gradient: "linear-gradient(135deg, #8B0000, #DC143C)",
-    badge: "Best Seller"
-  },
-  {
-    id: 2,
-    nombre: "Nude Essence",
-    categoria: "labiales",
-    precio: 459,
-    descripcion: "Tono nude natural con hidratación intensa.",
-    gradient: "linear-gradient(135deg, #D2A68C, #E8C4B8)",
-    badge: null
-  },
-  {
-    id: 3,
-    nombre: "Berry Crush",
-    categoria: "labiales",
-    precio: 489,
-    descripcion: "Intenso tono berry con acabado cremoso.",
-    gradient: "linear-gradient(135deg, #722F37, #C2185B)",
-    badge: "Nuevo"
-  },
-  {
-    id: 4,
-    nombre: "Rosewood Matte",
-    categoria: "labiales",
-    precio: 469,
-    descripcion: "Rosa antiguo con fórmula de larga duración.",
-    gradient: "linear-gradient(135deg, #B5636A, #D4A0A0)",
-    badge: null
-  },
-  // RIMEL
-  {
-    id: 5,
-    nombre: "Volume Extreme",
-    categoria: "rimel",
-    precio: 399,
-    descripcion: "Volumen extremo y separación perfecta.",
-    gradient: "linear-gradient(135deg, #0D0D0D, #333333)",
-    badge: "Best Seller"
-  },
-  {
-    id: 6,
-    nombre: "Lash Definition",
-    categoria: "rimel",
-    precio: 379,
-    descripcion: "Define y alarga cada pestaña con precisión.",
-    gradient: "linear-gradient(135deg, #1A1A2E, #16213E)",
-    badge: null
-  },
-  {
-    id: 7,
-    nombre: "Waterproof Luxe",
-    categoria: "rimel",
-    precio: 429,
-    descripcion: "Resistente al agua con cepillo de fibra.",
-    gradient: "linear-gradient(135deg, #2C2C2C, #0D0D0D)",
-    badge: "Nuevo"
-  },
-  // SOMBRAS
-  {
-    id: 8,
-    nombre: "Golden Hour Palette",
-    categoria: "sombras",
-    precio: 699,
-    descripcion: "Paleta de 12 tonos dorados y tierra.",
-    gradient: "linear-gradient(135deg, #C9A84C, #E8D5A3)",
-    badge: "Best Seller"
-  },
-  {
-    id: 9,
-    nombre: "Smokey Nights",
-    categoria: "sombras",
-    precio: 649,
-    descripcion: "Tonos oscuros para un look dramático.",
-    gradient: "linear-gradient(135deg, #2C2C2C, #696969)",
-    badge: null
-  },
-  {
-    id: 10,
-    nombre: "Rose Quartz",
-    categoria: "sombras",
-    precio: 679,
-    descripcion: "Tonos rosas y neutros con shimmer delicado.",
-    gradient: "linear-gradient(135deg, #D4A0A0, #E8C4C4, #F5E6E0)",
-    badge: "Nuevo"
-  },
-  {
-    id: 11,
-    nombre: "Tierra Palette",
-    categoria: "sombras",
-    precio: 629,
-    descripcion: "Tonos tierra naturales para uso diario.",
-    gradient: "linear-gradient(135deg, #8B7355, #C4A882)",
-    badge: null
-  },
-  // DELINEADORES
-  {
-    id: 12,
-    nombre: "Precision Noir",
-    categoria: "delineadores",
-    precio: 349,
-    descripcion: "Punta ultra fina para trazos perfectos.",
-    gradient: "linear-gradient(135deg, #0D0D0D, #1A1A1A)",
-    badge: "Best Seller"
-  },
-  {
-    id: 13,
-    nombre: "Café Intenso",
-    categoria: "delineadores",
-    precio: 329,
-    descripcion: "Marrón intenso para un look natural y sofisticado.",
-    gradient: "linear-gradient(135deg, #3E2723, #6D4C41)",
-    badge: null
-  },
-  {
-    id: 14,
-    nombre: "Gel Liner Duo",
-    categoria: "delineadores",
-    precio: 389,
-    descripcion: "Delineador en gel con pincel incluido.",
-    gradient: "linear-gradient(135deg, #1A1A2E, #4A4A6A)",
-    badge: "Nuevo"
-  },
-  {
-    id: 15,
-    nombre: "Waterproof Liner",
-    categoria: "delineadores",
-    precio: 359,
-    descripcion: "Resistente al agua, duración de 24 horas.",
-    gradient: "linear-gradient(135deg, #212121, #424242)",
-    badge: null
-  },
-  {
-    id: 16,
-    nombre: "Coral Dream",
-    categoria: "labiales",
-    precio: 479,
-    descripcion: "Tono coral vibrante con finish luminoso.",
-    gradient: "linear-gradient(135deg, #E8734A, #F4A68C)",
-    badge: null
+    precio: 299,
+    descripcion: "Tu primer paso hacia lo extraordinario.",
+    lema: "Para la mujer que no pide permiso para brillar.",
+    manifiesto: "Este labial no es solo color. Es una declaración. Formulado con pigmentos de alta definición y manteca de karité pura, Velvet Rose Matte se funde con tus labios como una segunda piel. Un acabado aterciopelado que desafía las horas, que resiste el café de la mañana y las sonrisas de la noche. Porque tú no te retocas — tú permaneces.",
+    imagen: "labial.png",
+    badge: "Exclusivo"
   }
 ];
 
+// Messages for categories in development
+const CREANDO_CATS = {
+  rimel: {
+    titulo: "Rímel",
+    subtitulo: "Creando la mirada que habla sin palabras",
+    desc: "Estamos formulando un rímel que entiende tus pestañas. Fibras inteligentes, volumen real, cero grumos. Cada pestaña será una declaración de intención.",
+    icono: "👁"
+  },
+  sombras: {
+    titulo: "Sombras",
+    subtitulo: "Creando los colores que aún no existen",
+    desc: "Paletas diseñadas para romper reglas. Pigmentos que se funden como seda, tonos que nacen del amanecer y la medianoche. Pronto en tus manos.",
+    icono: "✨"
+  },
+  delineadores: {
+    titulo: "Delineadores",
+    subtitulo: "Creando la línea perfecta para cada historia",
+    desc: "Precisión milimétrica. Fórmula waterproof. Un trazo que define quién eres. Estamos perfeccionando cada detalle para que tu mirada sea inolvidable.",
+    icono: "🖊"
+  }
+};
+
 function createProductCard(product) {
   const card = document.createElement('div');
-  card.className = 'product-card scroll-reveal';
+  card.className = 'product-card product-card-featured scroll-reveal';
   card.setAttribute('data-category', product.categoria);
   card.innerHTML = `
-    <div class="product-img" style="background: ${product.gradient};">
+    <div class="product-img product-img-real" onclick="openProductModal(${product.id})" style="cursor:pointer;">
+      <img src="${product.imagen}" alt="${product.nombre}" loading="lazy">
       ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
     </div>
     <div class="product-info">
       <p class="product-category">${product.categoria}</p>
       <h3 class="product-name">${product.nombre}</h3>
+      <p class="product-lema">${product.lema}</p>
       <p class="product-desc">${product.descripcion}</p>
       <div class="product-footer">
         <span class="product-price">L. ${product.precio.toLocaleString('es-HN')}</span>
@@ -179,7 +66,6 @@ function createProductCard(product) {
     </div>
   `;
 
-  // Qty buttons
   const minusBtn = card.querySelector('.qty-minus');
   const plusBtn = card.querySelector('.qty-plus');
   const qtyEl = card.querySelector('.qty-value');
@@ -193,14 +79,108 @@ function createProductCard(product) {
     if (val < 20) qtyEl.textContent = val + 1;
   });
 
-  // Add to cart button
   card.querySelector('.add-cart-btn').addEventListener('click', (e) => {
     const qty = parseInt(qtyEl.textContent);
     addToCart(product.id, e, qty);
-    qtyEl.textContent = '1'; // reset after adding
+    qtyEl.textContent = '1';
   });
 
   return card;
+}
+
+// ---- PRODUCT MODAL ----
+function openProductModal(productId) {
+  const product = PRODUCTS.find(p => p.id === productId);
+  if (!product) return;
+
+  // Remove existing modal
+  const existing = document.getElementById('productModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'productModal';
+  modal.className = 'product-modal';
+  modal.innerHTML = `
+    <div class="product-modal-overlay" onclick="closeProductModal()"></div>
+    <div class="product-modal-content">
+      <button class="product-modal-close" onclick="closeProductModal()" aria-label="Cerrar">&times;</button>
+      <div class="product-modal-img">
+        <img src="${product.imagen}" alt="${product.nombre}">
+      </div>
+      <div class="product-modal-info">
+        <span class="product-modal-badge">${product.badge || ''}</span>
+        <h2 class="product-modal-name">${product.nombre}</h2>
+        <p class="product-modal-lema">${product.lema}</p>
+        <div class="product-modal-divider"></div>
+        <p class="product-modal-manifiesto">${product.manifiesto}</p>
+        <div class="product-modal-divider"></div>
+        <div class="product-modal-footer">
+          <span class="product-modal-price">L. ${product.precio.toLocaleString('es-HN')}</span>
+          <div class="product-modal-actions">
+            <div class="qty-selector">
+              <button class="qty-btn qty-minus" onclick="modalQtyChange(-1)" aria-label="Menos">−</button>
+              <span class="qty-value" id="modalQty">1</span>
+              <button class="qty-btn qty-plus" onclick="modalQtyChange(1)" aria-label="Más">+</button>
+            </div>
+            <button class="add-cart-btn" onclick="modalAddToCart(${product.id})">Agregar al carrito</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => modal.classList.add('active'));
+}
+
+function closeProductModal() {
+  const modal = document.getElementById('productModal');
+  if (!modal) return;
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+  setTimeout(() => modal.remove(), 300);
+}
+
+function modalQtyChange(delta) {
+  const el = document.getElementById('modalQty');
+  if (!el) return;
+  let val = parseInt(el.textContent) + delta;
+  if (val < 1) val = 1;
+  if (val > 20) val = 20;
+  el.textContent = val;
+}
+
+function modalAddToCart(productId) {
+  const qtyEl = document.getElementById('modalQty');
+  const qty = qtyEl ? parseInt(qtyEl.textContent) : 1;
+  addToCart(productId, null, qty);
+  closeProductModal();
+}
+
+// ---- CREANDO CATEGORY VIEW ----
+function renderCreandoCategory(container, cat) {
+  const info = CREANDO_CATS[cat];
+  if (!info) return;
+
+  container.innerHTML = `
+    <div class="creando-cat-card scroll-reveal">
+      <div class="creando-cat-bg">
+        <div class="creando-particle"></div>
+        <div class="creando-particle"></div>
+        <div class="creando-particle"></div>
+      </div>
+      <div class="creando-cat-content">
+        <span class="creando-cat-icon">${info.icono}</span>
+        <p class="creando-cat-label">En Desarrollo</p>
+        <h3 class="creando-cat-title">${info.subtitulo}</h3>
+        <div class="creando-cat-divider"></div>
+        <p class="creando-cat-desc">${info.desc}</p>
+        <p class="creando-cat-footer">A B R I L & O N E — Pronto para ti</p>
+      </div>
+    </div>
+  `;
+  initScrollReveal();
 }
 
 function renderProducts(container, products) {
@@ -212,13 +192,19 @@ function renderProducts(container, products) {
 function renderFeatured() {
   const grid = document.getElementById('featuredGrid');
   if (!grid) return;
-  const featured = PRODUCTS.filter(p => p.badge === 'Best Seller');
-  renderProducts(grid, featured);
+  renderProducts(grid, PRODUCTS);
 }
 
 function renderCatalog(filter) {
   const grid = document.getElementById('catalogGrid');
   if (!grid) return;
+
+  // If it's a "creando" category, show the elegant coming soon
+  if (CREANDO_CATS[filter]) {
+    renderCreandoCategory(grid, filter);
+    return;
+  }
+
   const filtered = filter === 'todos' ? PRODUCTS : PRODUCTS.filter(p => p.categoria === filter);
   renderProducts(grid, filtered);
 }
@@ -230,16 +216,13 @@ function addToCart(productId, e, qty) {
   localStorage.setItem('abrilone_cart', JSON.stringify(cart));
   updateCartCount();
 
-  // Analytics: registrar producto agregado
   const product = PRODUCTS.find(p => p.id === productId);
   if (product && typeof AO_ANALYTICS !== 'undefined') {
     AO_ANALYTICS.registrarProductoAgregado(productId, product.nombre, product.categoria, product.precio);
   }
 
-  // Show toast notification
   if (product) showCartToast(product.nombre, qty);
 
-  // Button animation feedback
   if (e && e.target) {
     const btn = e.target.closest('.add-cart-btn') || e.target;
     btn.style.transform = 'scale(1.05)';
@@ -248,7 +231,6 @@ function addToCart(productId, e, qty) {
 }
 
 function showCartToast(nombre, qty) {
-  // Remove existing toast if any
   const existing = document.querySelector('.cart-toast');
   if (existing) existing.remove();
 
@@ -259,8 +241,6 @@ function showCartToast(nombre, qty) {
     <span><strong>${nombre}</strong> ×${qty} agregado al carrito</span>
   `;
   document.body.appendChild(toast);
-
-  // Trigger animation
   requestAnimationFrame(() => toast.classList.add('show'));
 
   setTimeout(() => {
@@ -319,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFeatured();
   updateCartCount();
 
-  // Check URL params for direct category link
   const params = new URLSearchParams(window.location.search);
   const catParam = params.get('cat');
   if (catParam && document.getElementById('categoriasSection')) {
