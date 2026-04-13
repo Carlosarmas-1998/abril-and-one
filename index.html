@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A B R I L & O N E — Maquillaje premium. Labiales, rímel, sombras y delineadores que definen tu esencia.">
+  <title>A B R I L &amp; O N E | Belleza Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="nav-logo">A B R I L &nbsp; &amp; &nbsp; O N E</a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="active">Inicio</a></li>
+        <li><a href="productos.html">Categorías</a></li>
+        <li><a href="nosotros.html">Nosotros</a></li>
+        <li><a href="contacto.html">Contacto</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="cart-btn" id="cartBtn" aria-label="Carrito de compras">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero" id="inicio">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-logo-wrap fade-in">
+        <img src="logo.png" alt="A B R I L   &   O N E" class="hero-logo">
+      </div>
+      <p class="hero-tagline fade-in">Belleza Premium</p>
+      <p class="hero-desc fade-in">Maquillaje de alta calidad que realza tu belleza natural con elegancia y sofisticación.</p>
+      <a href="productos.html" class="btn btn-primary fade-in">Explorar Colección</a>
+    </div>
+    <div class="hero-scroll-indicator">
+      <span></span>
+    </div>
+  </section>
+
+  <!-- ========== CATEGORIAS ========== -->
+  <section class="section categories" id="categorias">
+    <div class="container">
+      <h2 class="section-title scroll-reveal">Nuestras Categorías</h2>
+      <p class="section-subtitle scroll-reveal">Encuentra el producto perfecto para cada momento</p>
+      <div class="categories-grid">
+        <a href="productos.html?cat=labiales" class="category-card scroll-reveal">
+          <div class="category-img">
+            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=800&fit=crop&crop=center" alt="Labiales premium" loading="lazy">
+            <div class="category-overlay">
+              <span class="category-label">Labiales</span>
+            </div>
+          </div>
+          <h3>Labiales</h3>
+          <p>Colores vibrantes y acabados irresistibles</p>
+        </a>
+        <a href="productos.html?cat=rimel" class="category-card scroll-reveal">
+          <div class="category-img">
+            <img src="https://images.unsplash.com/photo-1583241800698-e8ab01830a07?w=600&h=800&fit=crop&crop=center" alt="Rímel premium" loading="lazy">
+            <div class="category-overlay">
+              <span class="category-label">Rímel</span>
+            </div>
+          </div>
+          <h3>Rímel</h3>
+          <p>Pestañas voluminosas y definidas</p>
+        </a>
+        <a href="productos.html?cat=sombras" class="category-card scroll-reveal">
+          <div class="category-img">
+            <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600&h=800&fit=crop&crop=top" alt="Sombras premium" loading="lazy">
+            <div class="category-overlay">
+              <span class="category-label">Sombras</span>
+            </div>
+          </div>
+          <h3>Sombras</h3>
+          <p>Paletas con tonos para cada ocasión</p>
+        </a>
+        <a href="productos.html?cat=delineadores" class="category-card scroll-reveal">
+          <div class="category-img">
+            <img src="https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?w=600&h=800&fit=crop&crop=center" alt="Delineadores premium" loading="lazy">
+            <div class="category-overlay">
+              <span class="category-label">Delineadores</span>
+            </div>
+          </div>
+          <h3>Delineadores</h3>
+          <p>Precisión y larga duración</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ABOUT TEASER ========== -->
+  <section class="section about-teaser">
+    <div class="container about-teaser-grid">
+      <div class="about-teaser-img scroll-reveal">
+        <div class="about-img-placeholder">
+          <img src="logo2.png" alt="A B R I L & O N E" style="width: 85%; height: auto; object-fit: contain;">
+        </div>
+      </div>
+      <div class="about-teaser-content scroll-reveal">
+        <h2 class="section-title" style="text-align: left;">Nuestra Historia</h2>
+        <p>En <strong>A B R I L & O N E</strong> creemos que el maquillaje es una forma de expresión personal. Cada producto está creado con ingredientes de la más alta calidad, pensados para realzar tu belleza única.</p>
+        <p>Nacimos con la misión de ofrecer cosméticos premium accesibles, cruelty-free y con formulaciones que cuidan tu piel mientras te hacen brillar.</p>
+        <a href="nosotros.html" class="btn btn-outline">Conocer Más</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TESTIMONIOS ========== -->
+  <section class="section testimonials">
+    <div class="container">
+      <h2 class="section-title scroll-reveal">Lo que Dicen de Nosotros</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card scroll-reveal">
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"Los labiales tienen una pigmentación increíble y duran todo el día. Mi tono favorito es el Rose Nude, es perfecto."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar" style="background: linear-gradient(135deg, #D4A0A0, #C9929B);">V</div>
+            <div>
+              <strong>Valentina R.</strong>
+              <span>Cliente frecuente</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card scroll-reveal">
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"El rímel es una maravilla. Mis pestañas se ven súper largas y no se corre para nada. Totalmente recomendado."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar" style="background: linear-gradient(135deg, #1A1A1A, #4A4A4A);">M</div>
+            <div>
+              <strong>Mariana L.</strong>
+              <span>Maquillista profesional</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card scroll-reveal">
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"Las sombras son súper pigmentadas y fáciles de difuminar. La paleta Golden Hour es mi favorita absoluta."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar" style="background: linear-gradient(135deg, #C9A84C, #E8D5A3);">S</div>
+            <div>
+              <strong>Sofía G.</strong>
+              <span>Beauty blogger</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== NEWSLETTER ========== -->
+  <section class="section newsletter">
+    <div class="container text-center">
+      <h2 class="section-title scroll-reveal">Únete a Nuestra Comunidad</h2>
+      <p class="section-subtitle scroll-reveal">Recibe ofertas exclusivas, tips de belleza y novedades directamente en tu correo.</p>
+      <form class="newsletter-form scroll-reveal" onsubmit="return false;">
+        <input type="email" placeholder="Tu correo electrónico" required>
+        <button type="submit" class="btn btn-primary">Suscribirme</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="footer-accent"></div>
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <h3 class="footer-logo">A B R I L &nbsp; <span>&amp;</span> &nbsp; O N E</h3>
+        <p>Belleza que define tu esencia. Maquillaje premium para mujeres que brillan con luz propia.</p>
+        <div class="social-links">
+          <a href="#" aria-label="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="#" aria-label="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </a>
+          <a href="#" aria-label="TikTok">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Enlaces</h4>
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="productos.html">Categorías</a></li>
+          <li><a href="nosotros.html">Nosotros</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="politicas.html#envios">Política de Envíos</a></li>
+          <li><a href="politicas.html#pagos">Pagos y Crédito ONE</a></li>
+          <li><a href="politicas.html#devoluciones">Devoluciones</a></li>
+          <li><a href="politicas.html#garantia">Garantía</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h4>Contacto</h4>
+        <p>makeupdeabril@gmail.com</p>
+        <p>Tegucigalpa, Honduras</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>&copy; <span id="currentYear"></span> A B R I L & O N E. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== CART SIDEBAR ========== -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>Tu Carrito</h3>
+      <button class="cart-close" id="cartClose" aria-label="Cerrar carrito">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="cart-empty" id="cartEmpty">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: var(--gris-light);"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <p>Tu carrito está vacío</p>
+      <a href="productos.html" class="btn btn-outline" style="font-size: 0.65rem; padding: 10px 28px;">Explorar Categorías</a>
+    </div>
+    <div class="cart-footer" id="cartFooter">
+      <div class="cart-subtotal">
+        <span>Subtotal</span>
+        <span id="cartSubtotal">L. 0</span>
+      </div>
+      <div class="cart-credit-option">
+        <label class="credit-toggle">
+          <input type="checkbox" id="creditOneToggle">
+          <span class="credit-toggle-slider"></span>
+          <span class="credit-toggle-label">Crédito ONE</span>
+        </label>
+        <p class="credit-desc">Paga 50% al hacer tu pedido y 50% 24h antes de recibir</p>
+        <div class="credit-breakdown" id="creditBreakdown">
+          <div class="credit-row">
+            <span>Ahora</span>
+            <span id="creditNow">L. 0</span>
+          </div>
+          <div class="credit-row">
+            <span>24h antes de recibir</span>
+            <span id="creditLater">L. 0</span>
+          </div>
+        </div>
+      </div>
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">L. 0</span>
+      </div>
+      <label class="policy-accept">
+        <input type="checkbox" id="policyAccept">
+        <span class="policy-accept-check"></span>
+        <span class="policy-accept-text">He leído y acepto las <a href="politicas.html" target="_blank">políticas de empresa</a></span>
+      </label>
+      <button class="btn btn-primary cart-checkout-btn" id="checkoutBtn" style="width: 100%; text-align: center;" disabled>Finalizar Compra</button>
+    </div>
+  </aside>
+
+  <script src="js/analytics.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
