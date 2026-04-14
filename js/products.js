@@ -10,7 +10,7 @@ const PRODUCTS = [
     precio: 299,
     descripcion: "El tono que revela tu esencia natural.",
     lema: "Menos es poder. Tu piel, elevada.",
-    manifiesto: "Un nude que no te borra — te define. Pigmento sedoso que se adapta a tu tono natural, creando un efecto segunda piel con acabado satinado. Para las que saben que la elegancia no grita, susurra.",
+    manifiesto: "Un nude que no te borra — te define. Se funde contigo como si siempre hubiera estado ahí. Para las que saben que la elegancia no grita, susurra. Porque a veces lo más poderoso es parecer que no llevas nada.",
     imagen: "labial/2.piel.png",
     imagenes: ["labial/2.piel.png", "labial/2.pielmodelo.png"],
     badge: "Nuevo"
@@ -22,7 +22,7 @@ const PRODUCTS = [
     precio: 299,
     descripcion: "El rojo que no necesita presentación.",
     lema: "Un clásico reinventado con actitud.",
-    manifiesto: "Rojo intenso, cobertura total, cero disculpas. Fórmula de larga duración con pigmentos de alta definición que capturan la luz y dominan cualquier habitación. El rojo definitivo para quien ya sabe quién es.",
+    manifiesto: "Rojo intenso, cero disculpas. El color que domina cualquier habitación antes de que digas una palabra. Dura lo que tú duras: toda la noche, toda la actitud. El rojo definitivo para quien ya sabe quién es.",
     imagen: "labial/3.rojo.png",
     imagenes: ["labial/3.rojo.png", "labial/3.rojomodelo.png"],
     badge: "Nuevo"
@@ -34,7 +34,7 @@ const PRODUCTS = [
     precio: 299,
     descripcion: "Profundidad y misterio en cada trazo.",
     lema: "Para las que prefieren la noche al día.",
-    manifiesto: "Un púrpura envolvente con acabado velvet que transforma tu look en una experiencia. Textura cremosa, pigmento intenso y una presencia que no se olvida. Diseñado para quienes eligen lo extraordinario.",
+    manifiesto: "Un púrpura que no pasa desapercibido. Intenso, envolvente, imposible de ignorar. Para las noches que merecen ser recordadas y los looks que no piden permiso. Diseñado para quienes eligen lo extraordinario.",
     imagen: "labial/4.purpel.png",
     imagenes: ["labial/4.purpel.png", "labial/4.purpelmodelo.png"],
     badge: "Nuevo"
@@ -46,7 +46,7 @@ const PRODUCTS = [
     precio: 299,
     descripcion: "Frescura y sofisticación en un solo tono.",
     lema: "El rosa que florece contigo.",
-    manifiesto: "Un rosa vibrante con alma propia. Fórmula hidratante con aceite de rosa mosqueta que nutre mientras deslumbra. Color que se mantiene fresco hora tras hora, como si acabaras de aplicarlo. Fresco, femenino, imparable.",
+    manifiesto: "Un rosa con alma propia. El tono que te hace sentir fresca a las 8 de la mañana y poderosa a las 10 de la noche. Como si acabaras de aplicarlo, siempre. Fresco, femenino, imparable.",
     imagen: "labial/5.pink.png",
     imagenes: ["labial/5.pink.png", "labial/5.pinkmodelo.png"],
     badge: "Nuevo"
