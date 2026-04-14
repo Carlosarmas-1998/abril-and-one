@@ -235,9 +235,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const cliente = await getOrCreateCliente(nombre, email);
 
         // Generate order ID
-        const pedidoId = 'PED-' + Date.now();
+        const pedidoId = 'ABO-' + Date.now();
 
-        // Save order to DB
+        // Build shipping address
+        const fullAddress = [direccionExacta, colonia, ciudad, depto].filter(Boolean).join(', ');
+
+        // Build Stripe items array
+        const cartCounts = {};
+        cart.forEach(id => { cartCounts[id] = (cartCounts[id] || 0) + 1; });
+        const stripeItems = Object.entries(cartCounts).map(([id, qty]) => {
+          const p = PRODUCTS.find(pr => pr.id === parseInt(id));
+          if (!p) return null;
+          let price = p.precio;
+          if (discountApplied) price = Math.round(price * 0.90);
+          return {
+            name: p.nombre + ' — Abril & One',
+            ref: 'ABO-' + p.id,
+            qty: qty,
+            price: price,
+            image: p.imagen && p.imagen.startsWith('http') ? p.imagen : null
+          };
+        }).filter(Boolean);
+
+        // Save order to DB first
         await guardarPedido({
           pedido_id: pedidoId,
           cliente_id: cliente.clienteId,
@@ -248,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
           es_credito: esCredito,
           pago_inicial: esCredito ? Math.ceil(total / 2) : total,
           pago_pendiente: esCredito ? total - Math.ceil(total / 2) : 0,
-          estado: 'pendiente',
+          estado: 'pendiente_pago',
           direccion: { departamento: depto, ciudad: ciudad || '', colonia: colonia || '', direccion: direccionExacta || '' }
         });
 
@@ -262,28 +282,45 @@ document.addEventListener('DOMContentLoaded', () => {
           AO_ANALYTICS.registrarPedido(productos, total, esCredito);
         }
 
+        // --- STRIPE PAYMENT via ENIGME edge function ---
+        checkoutBtn.textContent = 'Conectando con pago...';
+
+        const ENIGME_STRIPE_URL = 'https://hajmyntnvurlcuwshjdd.supabase.co/functions/v1/stripe-checkout';
+        const stripeRes = await fetch(ENIGME_STRIPE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: stripeItems,
+            currency: 'hnl',
+            customer_email: email,
+            customer_name: nombre,
+            order_id: pedidoId,
+            shipping_address: fullAddress,
+            credit_mode: esCredito,
+            success_path: '/productos.html',
+            cancel_path: '/productos.html'
+          })
+        });
+
+        const stripeData = await stripeRes.json();
+
+        if (!stripeRes.ok || !stripeData.url) {
+          throw new Error(stripeData.error || 'Error al conectar con el sistema de pago');
+        }
+
+        // Save pending order data for return
+        sessionStorage.setItem('abrilone_pending_order', JSON.stringify({
+          pedidoId, email, nombre, total, esCredito
+        }));
+
         localStorage.removeItem('abrilone_cart');
         updateCartCount();
 
-        let msg = '¡Pedido ' + pedidoId + ' realizado con éxito!\n\n';
-        if (descuento > 0) msg += '¡Se aplicó 10% de descuento por ser tu primera compra!\n';
-        msg += esCredito
-          ? 'Pago inicial: L. ' + Math.ceil(total / 2) + '\nPendiente 24h antes: L. ' + (total - Math.ceil(total / 2))
-          : 'Total: L. ' + total;
-        msg += '\n\nTe contactaremos a ' + email + ' para coordinar la entrega.';
+        // Redirect to Stripe Checkout
+        window.location.href = stripeData.url;
 
-        alert(msg);
-        closeCart();
-        policyAccept.checked = false;
-        checkoutBtn.disabled = true;
-        checkoutBtn.textContent = 'Finalizar Compra';
-        document.getElementById('clienteNombre').value = '';
-        document.getElementById('clienteEmail').value = '';
-        discountApplied = false;
-        document.getElementById('discountBadge').style.display = 'none';
-        document.getElementById('discountRow').style.display = 'none';
       } catch (err) {
-        alert('Hubo un error al procesar tu pedido. Intenta de nuevo.');
+        alert('Error: ' + (err.message || 'Hubo un error al procesar tu pedido. Intenta de nuevo.'));
         checkoutBtn.disabled = false;
         checkoutBtn.textContent = 'Finalizar Compra';
       }
