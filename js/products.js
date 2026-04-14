@@ -98,7 +98,7 @@ function createProductCard(product) {
       </div>
       ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
     </div>
-    <div class="product-info">
+    <div class="product-info" onclick="openProductModal(${product.id})" style="cursor:pointer;">
       <p class="product-category">${product.categoria}</p>
       <h3 class="product-name">${product.nombre}</h3>
       <p class="product-lema">${product.lema}</p>
@@ -173,50 +173,45 @@ function initCardSlider(slider, count, productId) {
     clearInterval(autoTimer);
   }));
 
-  // Swipe support (touch)
-  let startX = 0, startY = 0, isDragging = false;
+  // Touch: swipe + tap to open modal
+  let startX = 0, startY = 0, touchMoved = false;
   slider.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
-    isDragging = true;
+    touchMoved = false;
     clearInterval(autoTimer);
   }, { passive: true });
 
   slider.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dx) > 10) touchMoved = true;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 20) {
       e.preventDefault();
     }
   }, { passive: false });
 
   slider.addEventListener('touchend', (e) => {
-    if (!isDragging) return;
-    isDragging = false;
     const dx = e.changedTouches[0].clientX - startX;
     if (Math.abs(dx) > 30) {
       goTo(dx < 0 ? current + 1 : current - 1);
-    }
-  });
-
-  // Click to open modal (only if not swiping)
-  slider.addEventListener('click', (e) => {
-    if (Math.abs(e.clientX - startX) < 10) {
+    } else if (!touchMoved && !e.target.classList.contains('card-dot')) {
       openProductModal(productId);
     }
   });
 
-  // Mouse drag for desktop
-  let mouseStartX = 0, mouseDown = false;
+  // Mouse: drag to swipe + click to open modal
+  let mouseStartX = 0, mouseDown = false, mouseMoved = false;
   slider.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('card-dot')) return;
     mouseStartX = e.clientX;
     mouseDown = true;
+    mouseMoved = false;
     clearInterval(autoTimer);
-    e.preventDefault();
   });
   slider.addEventListener('mousemove', (e) => {
     if (!mouseDown) return;
+    if (Math.abs(e.clientX - mouseStartX) > 5) mouseMoved = true;
   });
   slider.addEventListener('mouseup', (e) => {
     if (!mouseDown) return;
@@ -224,7 +219,7 @@ function initCardSlider(slider, count, productId) {
     const dx = e.clientX - mouseStartX;
     if (Math.abs(dx) > 30) {
       goTo(dx < 0 ? current + 1 : current - 1);
-    } else {
+    } else if (!mouseMoved) {
       openProductModal(productId);
     }
   });
