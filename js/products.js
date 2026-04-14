@@ -4,15 +4,52 @@
 
 const PRODUCTS = [
   {
-    id: 1,
-    nombre: "Velvet Rose Matte",
+    id: 2,
+    nombre: "Nude Sensation",
     categoria: "labiales",
     precio: 299,
-    descripcion: "Tu primer paso hacia lo extraordinario.",
-    lema: "Para la mujer que no pide permiso para brillar.",
-    manifiesto: "Este labial no es solo color. Es una declaración. Formulado con pigmentos de alta definición y manteca de karité pura, Velvet Rose Matte se funde con tus labios como una segunda piel. Un acabado aterciopelado que desafía las horas, que resiste el café de la mañana y las sonrisas de la noche. Porque tú no te retocas — tú permaneces.",
-    imagen: "labial.png",
-    badge: "Exclusivo"
+    descripcion: "El tono que revela tu esencia natural.",
+    lema: "Menos es poder. Tu piel, elevada.",
+    manifiesto: "Un nude que no te borra — te define. Pigmento sedoso que se adapta a tu tono natural, creando un efecto segunda piel con acabado satinado. Para las que saben que la elegancia no grita, susurra.",
+    imagen: "labial/2.piel.png",
+    imagenes: ["labial/2.piel.png", "labial/2.pielmodelo.png"],
+    badge: "Nuevo"
+  },
+  {
+    id: 3,
+    nombre: "Rouge Absolute",
+    categoria: "labiales",
+    precio: 299,
+    descripcion: "El rojo que no necesita presentación.",
+    lema: "Un clásico reinventado con actitud.",
+    manifiesto: "Rojo intenso, cobertura total, cero disculpas. Fórmula de larga duración con pigmentos de alta definición que capturan la luz y dominan cualquier habitación. El rojo definitivo para quien ya sabe quién es.",
+    imagen: "labial/3.rojo.png",
+    imagenes: ["labial/3.rojo.png", "labial/3.rojomodelo.png"],
+    badge: "Nuevo"
+  },
+  {
+    id: 4,
+    nombre: "Plum Velour",
+    categoria: "labiales",
+    precio: 299,
+    descripcion: "Profundidad y misterio en cada trazo.",
+    lema: "Para las que prefieren la noche al día.",
+    manifiesto: "Un púrpura envolvente con acabado velvet que transforma tu look en una experiencia. Textura cremosa, pigmento intenso y una presencia que no se olvida. Diseñado para quienes eligen lo extraordinario.",
+    imagen: "labial/4.purpel.png",
+    imagenes: ["labial/4.purpel.png", "labial/4.purpelmodelo.png"],
+    badge: "Nuevo"
+  },
+  {
+    id: 5,
+    nombre: "Rosé Bloom",
+    categoria: "labiales",
+    precio: 299,
+    descripcion: "Frescura y sofisticación en un solo tono.",
+    lema: "El rosa que florece contigo.",
+    manifiesto: "Un rosa vibrante con alma propia. Fórmula hidratante con aceite de rosa mosqueta que nutre mientras deslumbra. Color que se mantiene fresco hora tras hora, como si acabaras de aplicarlo. Fresco, femenino, imparable.",
+    imagen: "labial/5.pink.png",
+    imagenes: ["labial/5.pink.png", "labial/5.pinkmodelo.png"],
+    badge: "Nuevo"
   }
 ];
 
@@ -48,9 +85,17 @@ function createProductCard(product) {
   const card = document.createElement('div');
   card.className = 'product-card product-card-featured scroll-reveal';
   card.setAttribute('data-category', product.categoria);
+  const imgs = product.imagenes && product.imagenes.length > 1 ? product.imagenes : [product.imagen];
+  const hasSlider = imgs.length > 1;
+
   card.innerHTML = `
-    <div class="product-img product-img-real" onclick="openProductModal(${product.id})" style="cursor:pointer;">
-      <img src="${product.imagen}" alt="${product.nombre}" loading="lazy">
+    <div class="product-img product-img-real" style="cursor:pointer;">
+      <div class="card-slider" data-product-id="${product.id}">
+        <div class="card-slider-track">
+          ${imgs.map((src, i) => `<img src="${src}" alt="${product.nombre}" class="card-slide${i === 0 ? ' active' : ''}" loading="lazy">`).join('')}
+        </div>
+        ${hasSlider ? '<div class="card-slider-dots">' + imgs.map((_, i) => `<span class="card-dot${i === 0 ? ' active' : ''}" data-index="${i}"></span>`).join('') + '</div>' : ''}
+      </div>
       ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
     </div>
     <div class="product-info">
@@ -91,7 +136,99 @@ function createProductCard(product) {
     qtyEl.textContent = '1';
   });
 
+  // Setup slider with auto-slide and swipe
+  if (hasSlider) {
+    const slider = card.querySelector('.card-slider');
+    initCardSlider(slider, imgs.length, product.id);
+  }
+
   return card;
+}
+
+function initCardSlider(slider, count, productId) {
+  let current = 0;
+  let autoCount = 0;
+  let autoTimer = null;
+  const slides = slider.querySelectorAll('.card-slide');
+  const dots = slider.querySelectorAll('.card-dot');
+
+  function goTo(idx) {
+    current = ((idx % count) + count) % count;
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  // Auto-slide 2 full cycles (4 transitions: 0→1, 1→0, 0→1, 1→0)
+  function autoSlide() {
+    if (autoCount >= 4) { clearInterval(autoTimer); return; }
+    goTo(current + 1);
+    autoCount++;
+  }
+  autoTimer = setInterval(autoSlide, 1800);
+
+  // Dot clicks
+  dots.forEach(d => d.addEventListener('click', (e) => {
+    e.stopPropagation();
+    goTo(parseInt(d.dataset.index));
+    clearInterval(autoTimer);
+  }));
+
+  // Swipe support (touch)
+  let startX = 0, startY = 0, isDragging = false;
+  slider.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    isDragging = true;
+    clearInterval(autoTimer);
+  }, { passive: true });
+
+  slider.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 20) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  slider.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 30) {
+      goTo(dx < 0 ? current + 1 : current - 1);
+    }
+  });
+
+  // Click to open modal (only if not swiping)
+  slider.addEventListener('click', (e) => {
+    if (Math.abs(e.clientX - startX) < 10) {
+      openProductModal(productId);
+    }
+  });
+
+  // Mouse drag for desktop
+  let mouseStartX = 0, mouseDown = false;
+  slider.addEventListener('mousedown', (e) => {
+    mouseStartX = e.clientX;
+    mouseDown = true;
+    clearInterval(autoTimer);
+    e.preventDefault();
+  });
+  slider.addEventListener('mousemove', (e) => {
+    if (!mouseDown) return;
+  });
+  slider.addEventListener('mouseup', (e) => {
+    if (!mouseDown) return;
+    mouseDown = false;
+    const dx = e.clientX - mouseStartX;
+    if (Math.abs(dx) > 30) {
+      goTo(dx < 0 ? current + 1 : current - 1);
+    } else {
+      openProductModal(productId);
+    }
+  });
+  slider.addEventListener('mouseleave', () => { mouseDown = false; });
 }
 
 // ---- PRODUCT MODAL ----
@@ -106,12 +243,20 @@ function openProductModal(productId) {
   const modal = document.createElement('div');
   modal.id = 'productModal';
   modal.className = 'product-modal';
+  const imgs = product.imagenes && product.imagenes.length > 1 ? product.imagenes : [product.imagen];
+  const hasMultiple = imgs.length > 1;
+
   modal.innerHTML = `
     <div class="product-modal-overlay" onclick="closeProductModal()"></div>
     <div class="product-modal-content">
       <button class="product-modal-close" onclick="closeProductModal()" aria-label="Cerrar">&times;</button>
       <div class="product-modal-img">
-        <img src="${product.imagen}" alt="${product.nombre}">
+        <div class="modal-slider">
+          <div class="card-slider-track">
+            ${imgs.map((src, i) => `<img src="${src}" alt="${product.nombre}" class="card-slide${i === 0 ? ' active' : ''}">`).join('')}
+          </div>
+          ${hasMultiple ? '<div class="card-slider-dots modal-dots">' + imgs.map((_, i) => `<span class="card-dot${i === 0 ? ' active' : ''}" data-index="${i}"></span>`).join('') + '</div>' : ''}
+        </div>
       </div>
       <div class="product-modal-info">
         <span class="product-modal-badge">${product.badge || ''}</span>
@@ -138,6 +283,134 @@ function openProductModal(productId) {
   document.body.appendChild(modal);
   document.body.style.overflow = 'hidden';
   requestAnimationFrame(() => modal.classList.add('active'));
+
+  // Init swipe on modal slider
+  const modalSlider = modal.querySelector('.modal-slider');
+  initModalSlider(modalSlider, imgs.length, imgs);
+}
+
+function initModalSlider(slider, count, images) {
+  let current = 0;
+  const slides = slider.querySelectorAll('.card-slide');
+  const dots = slider.querySelectorAll('.card-dot');
+
+  function goTo(idx) {
+    current = ((idx % count) + count) % count;
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  dots.forEach(d => d.addEventListener('click', () => goTo(parseInt(d.dataset.index))));
+
+  let startX = 0, isDragging = false;
+  slider.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; isDragging = true; }, { passive: true });
+  slider.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    if (Math.abs(e.touches[0].clientX - startX) > 20) e.preventDefault();
+  }, { passive: false });
+  slider.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 30) goTo(dx < 0 ? current + 1 : current - 1);
+  });
+
+  let mouseX = 0, mouseDown = false;
+  slider.addEventListener('mousedown', (e) => { mouseX = e.clientX; mouseDown = true; e.preventDefault(); });
+  slider.addEventListener('mouseup', (e) => {
+    if (!mouseDown) return;
+    mouseDown = false;
+    const dx = e.clientX - mouseX;
+    if (Math.abs(dx) > 30) {
+      goTo(dx < 0 ? current + 1 : current - 1);
+    } else if (images) {
+      openPhotoViewer(images, current);
+    }
+  });
+  slider.addEventListener('mouseleave', () => { mouseDown = false; });
+
+  // Touch tap to open viewer
+  slider.addEventListener('click', (e) => {
+    if (e.target.classList.contains('card-dot')) return;
+    if (images) openPhotoViewer(images, current);
+  });
+}
+
+// ---- FULLSCREEN PHOTO VIEWER ----
+function openPhotoViewer(images, startIndex) {
+  const existing = document.getElementById('photoViewer');
+  if (existing) existing.remove();
+
+  let current = startIndex || 0;
+  const viewer = document.createElement('div');
+  viewer.id = 'photoViewer';
+  viewer.className = 'photo-viewer';
+  viewer.innerHTML = `
+    <div class="photo-viewer-overlay"></div>
+    <button class="photo-viewer-close" aria-label="Cerrar">&times;</button>
+    <div class="photo-viewer-container">
+      ${images.map((src, i) => `<img src="${src}" class="photo-viewer-img${i === current ? ' active' : ''}" alt="Foto ${i+1}">`).join('')}
+    </div>
+    ${images.length > 1 ? '<div class="photo-viewer-dots">' + images.map((_, i) => `<span class="photo-viewer-dot${i === current ? ' active' : ''}" data-index="${i}"></span>`).join('') + '</div>' : ''}
+    <p class="photo-viewer-hint">Desliza para ver mas</p>
+  `;
+
+  document.body.appendChild(viewer);
+  requestAnimationFrame(() => viewer.classList.add('active'));
+
+  const viewerImgs = viewer.querySelectorAll('.photo-viewer-img');
+  const viewerDots = viewer.querySelectorAll('.photo-viewer-dot');
+  const hint = viewer.querySelector('.photo-viewer-hint');
+
+  function goTo(idx) {
+    current = ((idx % images.length) + images.length) % images.length;
+    viewerImgs.forEach((img, i) => img.classList.toggle('active', i === current));
+    viewerDots.forEach((d, i) => d.classList.toggle('active', i === current));
+    if (hint) hint.style.display = 'none';
+  }
+
+  // Close
+  viewer.querySelector('.photo-viewer-close').addEventListener('click', () => closePhotoViewer());
+  viewer.querySelector('.photo-viewer-overlay').addEventListener('click', () => closePhotoViewer());
+
+  // Dots
+  viewerDots.forEach(d => d.addEventListener('click', () => goTo(parseInt(d.dataset.index))));
+
+  // Swipe (touch)
+  const container = viewer.querySelector('.photo-viewer-container');
+  let startX = 0, isDragging = false;
+  container.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; isDragging = true; }, { passive: true });
+  container.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    if (Math.abs(e.touches[0].clientX - startX) > 15) e.preventDefault();
+  }, { passive: false });
+  container.addEventListener('touchend', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 25) goTo(dx < 0 ? current + 1 : current - 1);
+  });
+
+  // Mouse drag
+  let mouseX = 0, mouseDown = false;
+  container.addEventListener('mousedown', (e) => { mouseX = e.clientX; mouseDown = true; e.preventDefault(); });
+  container.addEventListener('mouseup', (e) => {
+    if (!mouseDown) return;
+    mouseDown = false;
+    const dx = e.clientX - mouseX;
+    if (Math.abs(dx) > 30) goTo(dx < 0 ? current + 1 : current - 1);
+  });
+  container.addEventListener('mouseleave', () => { mouseDown = false; });
+
+  // Auto-hide hint
+  setTimeout(() => { if (hint) hint.style.opacity = '0'; }, 3000);
+}
+
+function closePhotoViewer() {
+  const viewer = document.getElementById('photoViewer');
+  if (!viewer) return;
+  viewer.classList.remove('active');
+  setTimeout(() => viewer.remove(), 300);
 }
 
 function closeProductModal() {
